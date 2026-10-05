@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importar Excel - Aporte Anual UE 27 de Mayo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/auth.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        .upload-area {
+            border: 2px dashed var(--gold-color);
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            background: rgba(255,215,0,0.05);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            background: rgba(255,215,0,0.1);
+        }
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--gold-color);
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-container">
+            <img src="images/logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/50?text=27'">
+            <h1>UE 27 de Mayo</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="admin-hide"><i class="fas fa-money-bill-wave"></i> Cobros</a>
+            <a href="estado_pagos.html"><i class="fas fa-list-check"></i> Estado de Pagos</a>
+            <a href="caja_informe.html" class="admin-hide"><i class="fas fa-wallet"></i> Caja y Reportes</a>
+            <a href="importar_excel.html" class="active admin-hide"><i class="fas fa-file-excel"></i> Importar</a>
+            <a href="estudiantes.html"><i class="fas fa-users"></i> Inscritos</a>
+            <a href="cambiar_password.html"><i class="fas fa-key"></i> Mi Cuenta</a>
+            <a href="#" id="btnLogout" onclick="logout(); return false;" style="color:#ff6b6b;"><i class="fas fa-sign-out-alt"></i> Salir</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="glass-panel" style="max-width: 600px; margin: 0 auto;">
+            <h2 style="color: var(--gold-color); text-align: center; margin-top: 0;">
+                <i class="fas fa-cloud-upload-alt"></i> Importar Estudiantes desde Excel
+            </h2>
+            <p style="text-align: center; color: #aaa; margin-bottom: 1.5rem;">
+                Sube la lista de estudiantes inscritos. El archivo debe tener las columnas: <br>
+                <strong>Nombres | Apellidos | CI (Opcional)</strong> en la primera hoja a partir de la fila 2.
+            </p>
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <button id="btnDescargarPlantilla" class="btn btn-success" style="display: inline-block;">
+                    <i class="fas fa-download"></i> Descargar Plantilla
+                </button>
+            </div>
+
+            <form id="formUpload">
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Curso Destino:</label>
+                        <select id="curso" class="form-control" required>
+                            <option value="">Seleccione...</option>
+                            <option value="1ro Secundaria">1ro Secundaria</option>
+                            <option value="2do Secundaria">2do Secundaria</option>
+                            <option value="3ro Secundaria">3ro Secundaria</option>
+                            <option value="4to Secundaria">4to Secundaria</option>
+                            <option value="5to Secundaria">5to Secundaria</option>
+                            <option value="6to Secundaria">6to Secundaria</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Paralelo Destino:</label>
+                        <select id="paralelo" class="form-control" required>
+                            <option value="">Seleccione...</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Archivo Excel (.xlsx):</label>
+                    <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-file-excel"></i>
+                        <h3 style="margin: 0; color: white;" id="fileName">Haz clic para seleccionar el archivo</h3>
+                        <p style="color: #aaa; margin: 5px 0 0 0;">o arrastra y suelta aquí</p>
+                    </div>
+                    <input type="file" id="fileInput" accept=".xlsx, .xls" style="display: none;" required>
+                </div>
+
+                <div id="resultMsg" style="text-align: center; margin-bottom: 1rem; display: none; padding: 10px; border-radius: 5px;"></div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;" id="btnSubir">
+                    <i class="fas fa-upload"></i> Procesar Archivo
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileName.innerText = e.target.files[0].name;
+                fileName.style.color = 'var(--primary-color)';
+            }
+        });
+
+        document.getElementById('btnDescargarPlantilla').addEventListener('click', () => {
+            // Crear el libro de trabajo y la hoja
+            const wb = XLSX.utils.book_new();
+            // Nombres de las columnas
+            const ws_data = [
+                ['Nombres', 'Apellidos', 'CI']
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+            
+            // Ajustar ancho de columnas
+            ws['!cols'] = [ {wch: 25}, {wch: 25}, {wch: 15} ];
+            
+            XLSX.utils.book_append_sheet(wb, ws, "Estudiantes");
+            // Descargar
+            XLSX.writeFile(wb, "Plantilla_Inscritos.xlsx");
+        });
+
+        document.getElementById('formUpload').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const file = fileInput.files[0];
+            const curso = document.getElementById('curso').value;
+            const paralelo = document.getElementById('paralelo').value;
+            
+            if (!file) {
+                alert("Por favor seleccione un archivo.");
+                return;
+            }
+
+            const btn = document.getElementById('btnSubir');
+            const resultMsg = document.getElementById('resultMsg');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
+            resultMsg.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('curso', curso);
+            formData.append('paralelo', paralelo);
+
+            try {
+                // fetchWithAuth automatically adds token.
+                // We omit 'Content-Type' so browser sets multipart/form-data boundary
+                const res = await fetchWithAuth('/api/estudiantes/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    resultMsg.innerText = data.message;
+                    resultMsg.style.background = 'rgba(0,176,80,0.2)';
+                    resultMsg.style.color = '#00B050';
+                    resultMsg.style.display = 'block';
+                    document.getElementById('formUpload').reset();
+                    fileName.innerText = 'Haz clic para seleccionar el archivo';
+                    fileName.style.color = 'white';
+                } else {
+                    const err = await res.json();
+                    resultMsg.innerText = err.detail || 'Error al subir archivo';
+                    resultMsg.style.background = 'rgba(255,0,0,0.2)';
+                    resultMsg.style.color = '#ff4444';
+                    resultMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Ocurrió un error.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-upload"></i> Procesar Archivo';
+            }
+        });
+    </script>
+</body>
+</html>

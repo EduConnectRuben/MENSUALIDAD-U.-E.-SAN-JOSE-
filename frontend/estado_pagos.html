@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado de Pagos - UE 27 de Mayo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/auth.js"></script>
+    <style>
+        .badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .badge-success { background: rgba(0, 176, 80, 0.2); color: #00B050; border: 1px solid #00B050; }
+        .badge-danger { background: rgba(255, 68, 68, 0.2); color: #ff4444; border: 1px solid #ff4444; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-container">
+            <img src="images/logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/50?text=27'">
+            <h1>UE 27 de Mayo</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="admin-hide"><i class="fas fa-money-bill-wave"></i> Cobros</a>
+            <a href="estado_pagos.html" class="active"><i class="fas fa-list-check"></i> Estado de Pagos</a>
+            <a href="caja_informe.html" class="admin-hide"><i class="fas fa-wallet"></i> Caja y Reportes</a>
+            <a href="importar_excel.html" class="admin-hide"><i class="fas fa-file-excel"></i> Importar</a>
+            <a href="estudiantes.html"><i class="fas fa-users"></i> Inscritos</a>
+            <a href="cambiar_password.html"><i class="fas fa-key"></i> Mi Cuenta</a>
+            <a href="#" id="btnLogout" onclick="logout(); return false;" style="color:#ff6b6b;"><i class="fas fa-sign-out-alt"></i> Salir</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="glass-panel">
+            <h2 style="color: var(--gold-color); margin-top: 0;"><i class="fas fa-list-check"></i> Auditoría de Pagos por Curso</h2>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="form-group" style="flex: 1;">
+                    <label>Curso:</label>
+                    <select id="selectCurso" class="form-control">
+                        <option value="">Todos los cursos</option>
+                        <option value="1ro Secundaria">1ro Secundaria</option>
+                        <option value="2do Secundaria">2do Secundaria</option>
+                        <option value="3ro Secundaria">3ro Secundaria</option>
+                        <option value="4to Secundaria">4to Secundaria</option>
+                        <option value="5to Secundaria">5to Secundaria</option>
+                        <option value="6to Secundaria">6to Secundaria</option>
+                    </select>
+                </div>
+                <div class="form-group" style="width: 150px;">
+                    <label>Paralelo:</label>
+                    <select id="selectParalelo" class="form-control">
+                        <option value="">Todos</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                    </select>
+                </div>
+                <div class="form-group" style="width: 200px;">
+                    <label>Estado:</label>
+                    <select id="selectEstado" class="form-control">
+                        <option value="">Todos</option>
+                        <option value="Cancelado">Cancelado</option>
+                        <option value="Pendiente">Pendiente</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display: flex; align-items: flex-end;">
+                    <button id="btnFiltrar" class="btn btn-primary"><i class="fas fa-filter"></i> Filtrar</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Estudiante</th>
+                            <th>Curso / Paralelo</th>
+                            <th>C.I.</th>
+                            <th>Estado de Pago</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyEstadoPagos">
+                        <!-- Llenado por JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="margin-top: 2rem; display: flex; gap: 2rem;">
+                <div class="glass-panel" style="flex: 1; text-align: center;">
+                    <h3>Total Estudiantes</h3>
+                    <h2 id="totalEst" style="color: white; margin: 0;">0</h2>
+                </div>
+                <div class="glass-panel" style="flex: 1; text-align: center;">
+                    <h3 style="color: #00B050;">Cancelados</h3>
+                    <h2 id="totalCancelados" style="color: #00B050; margin: 0;">0</h2>
+                </div>
+                <div class="glass-panel" style="flex: 1; text-align: center;">
+                    <h3 style="color: #ff4444;">Pendientes</h3>
+                    <h2 id="totalPendientes" style="color: #ff4444; margin: 0;">0</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnFiltrar = document.getElementById('btnFiltrar');
+            
+            btnFiltrar.addEventListener('click', async () => {
+                const curso = document.getElementById('selectCurso').value;
+                const paralelo = document.getElementById('selectParalelo').value;
+                const estado = document.getElementById('selectEstado').value;
+                
+                let url = `/api/estudiantes?limit=1000`;
+                if (curso) url += `&curso=${encodeURIComponent(curso)}`;
+                if (paralelo) url += `&paralelo=${encodeURIComponent(paralelo)}`;
+                if (estado) url += `&estado_pago=${encodeURIComponent(estado)}`;
+                
+                btnFiltrar.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                
+                try {
+                    const res = await fetchWithAuth(url);
+                    const data = await res.json();
+                    
+                    const tbody = document.getElementById('tbodyEstadoPagos');
+                    tbody.innerHTML = '';
+                    
+                    let cancelados = 0;
+                    let pendientes = 0;
+                    
+                    data.forEach((est, idx) => {
+                        if (est.estado_pago !== 'Pendiente') cancelados++;
+                        else pendientes++;
+                        
+                        let estadoText = est.estado_pago;
+                        if (estadoText && estadoText.split(',').length >= 10 && estadoText !== 'Pendiente') {
+                            estadoText = 'Gestión Completa (10 meses)';
+                        }
+                        
+                        let badgeHtml = `<span class="badge ${badgeClass}">${estadoText}</span>`;
+                        if (est.estado_matricula === 'Retirado') {
+                            badgeHtml += ` <br><span class="badge badge-danger" style="margin-top:4px; display:inline-block;">Retirado</span>`;
+                        }
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${idx + 1}</td>
+                            <td>${est.apellidos} ${est.nombres}</td>
+                            <td>${est.curso} "${est.paralelo}"</td>
+                            <td>${est.ci || '-'}</td>
+                            <td>${badgeHtml}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    
+                    document.getElementById('totalEst').innerText = data.length;
+                    document.getElementById('totalCancelados').innerText = cancelados;
+                    document.getElementById('totalPendientes').innerText = pendientes;
+                    
+                } catch (error) {
+                    console.error(error);
+                } finally {
+                    btnFiltrar.innerHTML = '<i class="fas fa-filter"></i> Filtrar';
+                }
+            });
+            
+            // Auto load
+            btnFiltrar.click();
+        });
+    </script>
+</body>
+</html>

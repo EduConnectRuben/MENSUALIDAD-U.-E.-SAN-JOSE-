@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caja y Reportes - UE 27 de Mayo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/auth.js"></script>
+    <style>
+        .metric-card {
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .metric-title { font-size: 1rem; color: #aaa; margin-bottom: 0.5rem; }
+        .metric-value { font-size: 2rem; font-weight: bold; margin: 0; }
+        .text-green { color: #00B050; }
+        .text-red { color: #ff4444; }
+        .text-gold { color: var(--gold-color); }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-container">
+            <img src="images/logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/50?text=27'">
+            <h1>UE 27 de Mayo</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="admin-hide"><i class="fas fa-money-bill-wave"></i> Cobros</a>
+            <a href="estado_pagos.html"><i class="fas fa-list-check"></i> Estado de Pagos</a>
+            <a href="caja_informe.html" class="active admin-hide"><i class="fas fa-wallet"></i> Caja y Reportes</a>
+            <a href="importar_excel.html" class="admin-hide"><i class="fas fa-file-excel"></i> Importar</a>
+            <a href="estudiantes.html"><i class="fas fa-users"></i> Inscritos</a>
+            <a href="cambiar_password.html"><i class="fas fa-key"></i> Mi Cuenta</a>
+            <a href="#" id="btnLogout" onclick="logout(); return false;" style="color:#ff6b6b;"><i class="fas fa-sign-out-alt"></i> Salir</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-grid">
+            
+            <div class="glass-panel" style="grid-column: 1 / 3;">
+                <h2 style="color: var(--gold-color); margin-top: 0;"><i class="fas fa-chart-line"></i> Informe de Caja</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                    <div class="metric-card">
+                        <div class="metric-title">Total Ingresos</div>
+                        <div class="metric-value text-green" id="lblIngresos">0.00 Bs</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Total Egresos</div>
+                        <div class="metric-value text-red" id="lblEgresos">0.00 Bs</div>
+                    </div>
+                    <div class="metric-card" style="background: rgba(255,215,0,0.1); border-color: var(--gold-color);">
+                        <div class="metric-title" style="color: var(--gold-color);">Saldo Actual</div>
+                        <div class="metric-value text-gold" id="lblSaldo">0.00 Bs</div>
+                    </div>
+                </div>
+
+                <h3 style="color: white; margin-bottom: 1rem;">Últimos Movimientos</h3>
+                <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Descripción</th>
+                                <th>Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyTransacciones">
+                            <!-- Llenado por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="glass-panel" style="grid-column: 3 / 4; align-self: start;">
+                <h3 style="color: #ff4444; margin-top: 0;"><i class="fas fa-money-bill-transfer"></i> Registrar Egreso</h3>
+                <p style="color: #aaa; font-size: 0.9rem;">Registre el dinero entregado a dirección u otros gastos.</p>
+                
+                <form id="formEgreso">
+                    <div class="form-group">
+                        <label>Monto (Bs):</label>
+                        <input type="number" id="montoEgreso" class="form-control" step="0.5" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción / Concepto:</label>
+                        <textarea id="descEgreso" class="form-control" rows="3" required placeholder="Ej: Entrega a Dirección"></textarea>
+                    </div>
+                    <button type="submit" class="btn" style="background: #ff4444; color: white; width: 100%;" id="btnEgreso">
+                        <i class="fas fa-check"></i> Registrar Salida
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function cargarCaja() {
+            try {
+                const res = await fetchWithAuth('/api/caja/informe');
+                const data = await res.json();
+                
+                document.getElementById('lblIngresos').innerText = `${data.total_ingresos.toFixed(2)} Bs`;
+                document.getElementById('lblEgresos').innerText = `${data.total_egresos.toFixed(2)} Bs`;
+                document.getElementById('lblSaldo').innerText = `${data.saldo_actual.toFixed(2)} Bs`;
+                
+                const tbody = document.getElementById('tbodyTransacciones');
+                tbody.innerHTML = '';
+                
+                data.transacciones.forEach(t => {
+                    const tr = document.createElement('tr');
+                    const fecha = new Date(t.fecha).toLocaleString();
+                    const color = t.tipo === 'ingreso' ? '#00B050' : '#ff4444';
+                    const signo = t.tipo === 'ingreso' ? '+' : '-';
+                    const icon = t.tipo === 'ingreso' ? 'arrow-down' : 'arrow-up';
+                    
+                    tr.innerHTML = `
+                        <td style="font-size: 0.9rem; color: #aaa;">${fecha}</td>
+                        <td style="color: ${color};"><i class="fas fa-${icon}"></i> ${t.tipo.toUpperCase()}</td>
+                        <td>${t.descripcion}</td>
+                        <td style="color: ${color}; font-weight: bold;">${signo}${t.monto.toFixed(2)} Bs</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        document.getElementById('formEgreso').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnEgreso');
+            const monto = parseFloat(document.getElementById('montoEgreso').value);
+            const desc = document.getElementById('descEgreso').value;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+            
+            try {
+                const res = await fetchWithAuth('/api/caja/egresos', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        tipo: 'egreso',
+                        monto: monto,
+                        descripcion: desc
+                    })
+                });
+                
+                if (res.ok) {
+                    alert("Egreso registrado correctamente.");
+                    document.getElementById('formEgreso').reset();
+                    cargarCaja();
+                } else {
+                    const err = await res.json();
+                    alert(err.detail || "Error al registrar egreso.");
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> Registrar Salida';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', cargarCaja);
+    </script>
+</body>
+</html>

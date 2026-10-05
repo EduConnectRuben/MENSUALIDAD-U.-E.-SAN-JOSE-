@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudiantes Inscritos - UE 27 de Mayo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/auth.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-container">
+            <img src="images/logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/50?text=27'">
+            <h1>UE 27 de Mayo</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="admin-hide"><i class="fas fa-money-bill-wave"></i> Cobros</a>
+            <a href="estado_pagos.html"><i class="fas fa-list-check"></i> Estado de Pagos</a>
+            <a href="caja_informe.html" class="admin-hide"><i class="fas fa-wallet"></i> Caja y Reportes</a>
+            <a href="importar_excel.html" class="admin-hide"><i class="fas fa-file-excel"></i> Importar</a>
+            <a href="estudiantes.html" class="active"><i class="fas fa-users"></i> Inscritos</a>
+            <a href="cambiar_password.html"><i class="fas fa-key"></i> Mi Cuenta</a>
+            <a href="#" id="btnLogout" onclick="logout(); return false;" style="color:#ff6b6b;"><i class="fas fa-sign-out-alt"></i> Salir</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="glass-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="color: var(--gold-color); margin: 0;"><i class="fas fa-list"></i> Lista de Estudiantes Inscritos</h2>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button id="btnVaciarLista" class="btn" style="background: #ff4444; color: white; display: none;"><i class="fas fa-trash-alt"></i> Vaciar Año Escolar</button>
+                    <button id="btnExportar" class="btn btn-success"><i class="fas fa-file-excel"></i> Descargar Excel Pro</button>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="form-group" style="flex: 1;">
+                    <label>Buscar (Nombres/Apellidos):</label>
+                    <input type="text" id="inputSearch" class="form-control" placeholder="Ej: Perez">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Curso:</label>
+                    <select id="selectCurso" class="form-control">
+                        <option value="">Todos los cursos</option>
+                        <option value="1ro Secundaria">1ro Secundaria</option>
+                        <option value="2do Secundaria">2do Secundaria</option>
+                        <option value="3ro Secundaria">3ro Secundaria</option>
+                        <option value="4to Secundaria">4to Secundaria</option>
+                        <option value="5to Secundaria">5to Secundaria</option>
+                        <option value="6to Secundaria">6to Secundaria</option>
+                    </select>
+                </div>
+                <div class="form-group" style="width: 150px;">
+                    <label>Paralelo:</label>
+                    <select id="selectParalelo" class="form-control">
+                        <option value="">Todos</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="tablaEstudiantes">
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>C.I.</th>
+                            <th>Curso</th>
+                            <th>Paralelo</th>
+                            <th class="col-acciones" style="display: none;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyEstudiantes">
+                        <!-- Llenado por JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="loadingMsg" style="text-align: center; padding: 2rem; display: none;">Cargando...</div>
+        </div>
+    </div>
+
+    <script src="js/estudiantes.js"></script>
+</body>
+</html>
