@@ -388,6 +388,10 @@ def exportar_estudiantes(curso: str = None, paralelo: str = None, db: Session = 
 
 # --- PADRES Y RECIBOS ---
 
+@app.get("/api/padres", response_model=List[schemas.Padre])
+def get_padres(db: Session = Depends(get_db)):
+    return db.query(models.Padre).all()
+
 @app.get("/api/padres/{carnet}", response_model=schemas.Padre)
 def get_padre_by_carnet(carnet: str, db: Session = Depends(get_db)):
     padre = db.query(models.Padre).filter(models.Padre.carnet == carnet).first()

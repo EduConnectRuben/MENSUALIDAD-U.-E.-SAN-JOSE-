@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Padres Registrados - UE San José</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/auth.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-container">
+            <img src="images/logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/50?text=SJ'">
+            <h1>UE San José</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="admin-hide"><i class="fas fa-money-bill-wave"></i> Cobros</a>
+            <a href="estado_pagos.html"><i class="fas fa-list-check"></i> Estado de Pagos</a>
+            <a href="padres_registrados.html" class="active"><i class="fas fa-user-friends"></i> Padres</a>
+            <a href="caja_informe.html" class="admin-hide"><i class="fas fa-wallet"></i> Caja y Reportes</a>
+            <a href="importar_excel.html" class="admin-hide"><i class="fas fa-file-excel"></i> Importar</a>
+            <a href="estudiantes.html"><i class="fas fa-users"></i> Inscritos</a>
+            <a href="cambiar_password.html"><i class="fas fa-key"></i> Mi Cuenta</a>
+            <a href="#" id="btnLogout" onclick="logout(); return false;" style="color:#ff6b6b;"><i class="fas fa-sign-out-alt"></i> Salir</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="glass-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="color: var(--gold-color); margin: 0;"><i class="fas fa-user-friends"></i> Lista de Padres / Tutores Registrados</h2>
+                <div style="color: #00B050; font-weight: bold; font-size: 1.2rem;" id="totalPadres">Total: 0</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label>Buscar Padre (Nombre o Carnet):</label>
+                <input type="text" id="inputSearchPadre" class="form-control" placeholder="Ej: Ruben Condori">
+            </div>
+
+            <div class="table-container">
+                <table id="tablaPadres">
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Carnet (C.I.)</th>
+                            <th>Nombre del Padre / Tutor</th>
+                            <th>Cantidad de Hijos</th>
+                            <th>Cursos de sus Hijos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyPadres">
+                        <!-- Llenado por JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="loadingMsg" style="text-align: center; padding: 2rem; display: none;">Cargando datos...</div>
+        </div>
+    </div>
+
+    <script src="js/padres.js"></script>
+</body>
+</html>
