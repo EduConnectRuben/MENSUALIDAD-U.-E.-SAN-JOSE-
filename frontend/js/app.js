@@ -299,10 +299,19 @@ btnGenerarRecibo.addEventListener('click', async () => {
             printTbody.appendChild(tr);
         }
 
+        // Cambiar temporalmente el título para que al guardar PDF sugiera un nombre único
+        const originalTitle = document.title;
+        const añoActual = new Date().getFullYear();
+        const nombreLimpio = nombrePadre.trim().replace(/ /g, '_').toUpperCase();
+        document.title = `Recibo_${añoActual}_${nombreLimpio}`;
+
         // Mostrar el recibo y imprimir
         const receiptArea = document.getElementById('printReceiptArea');
         receiptArea.style.display = 'block';
+        
         window.print();
+        
+        document.title = originalTitle; // Restaurar el título original
 
         // ---- Limpiar todo después de imprimir ----
         setTimeout(() => {
