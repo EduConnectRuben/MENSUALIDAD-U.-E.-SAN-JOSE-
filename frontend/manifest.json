@@ -1,7 +1,7 @@
 {
-  "name": "Sistema Aporte Anual - UE 27 de Mayo",
+  "name": "Sistema Aporte Anual - UE San José",
   "short_name": "Aportes 27",
-  "description": "Sistema de gestión de pagos de aporte anual para la Unidad Educativa 27 de Mayo. Registra cobros, genera recibos y consulta el estado de pagos de todos los estudiantes.",
+  "description": "Sistema de gestión de pagos de aporte anual para la Unidad Educativa San José. Registra cobros, genera recibos y consulta el estado de pagos de todos los estudiantes.",
   "start_url": "/login.html",
   "scope": "/",
   "display": "standalone",

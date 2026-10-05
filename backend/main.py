@@ -36,7 +36,7 @@ try:
 except Exception as migration_err:
     print(f"[Migration] Nota: {migration_err}")
 
-app = FastAPI(title="App Aporte Anual - UE 27 de Mayo")
+app = FastAPI(title="App Aporte Anual - UE San José")
 
 app.add_middleware(
     CORSMiddleware,
@@ -117,7 +117,7 @@ def create_initial_users():
         admin = models.Usuario(
             username="admin", 
             rol="admin",
-            email="director@27demayo.com",
+            email="director@sanjose.com",
             password_hash=get_password_hash("74420830")
         )
         db.add(admin)
@@ -128,7 +128,7 @@ def create_initial_users():
         sec = models.Usuario(
             username="secretaria", 
             rol="secretaria",
-            email="secretaria@27demayo.com",
+            email="secretaria@sanjose.com",
             password_hash=get_password_hash("74420831")
         )
         db.add(sec)
@@ -284,6 +284,17 @@ def delete_all_estudiantes(
 
 @app.post("/api/estudiantes", response_model=schemas.Estudiante)
 def create_estudiante(estudiante: schemas.EstudianteCreate, db: Session = Depends(get_db)):
+    if estudiante.ci:
+        existing = db.query(models.Estudiante).filter(models.Estudiante.ci == estudiante.ci).first()
+        if existing:
+            existing.nombres = estudiante.nombres
+            existing.apellidos = estudiante.apellidos
+            existing.curso = estudiante.curso
+            existing.paralelo = estudiante.paralelo
+            db.commit()
+            db.refresh(existing)
+            return existing
+            
     db_estudiante = models.Estudiante(**estudiante.model_dump())
     db.add(db_estudiante)
     db.commit()
@@ -305,20 +316,31 @@ async def upload_estudiantes_excel(
         
         # Asumiendo que las columnas son: Nombres | Apellidos | CI (opcional)
         count = 0
+        actualizados = 0
         for row in sheet.iter_rows(min_row=2, values_only=True):
             if not row[0] or not row[1]:
                 continue
             
-            nombres = str(row[0])
-            apellidos = str(row[1])
-            ci = str(row[2]) if len(row) > 2 and row[2] else None
+            nombres = str(row[0]).strip()
+            apellidos = str(row[1]).strip()
+            ci = str(row[2]).strip() if len(row) > 2 and row[2] else None
+            
+            if ci:
+                existing = db.query(models.Estudiante).filter(models.Estudiante.ci == ci).first()
+                if existing:
+                    existing.nombres = nombres
+                    existing.apellidos = apellidos
+                    existing.curso = curso
+                    existing.paralelo = paralelo
+                    actualizados += 1
+                    continue
             
             db_est = models.Estudiante(nombres=nombres, apellidos=apellidos, ci=ci, curso=curso, paralelo=paralelo)
             db.add(db_est)
             count += 1
             
         db.commit()
-        return {"message": f"{count} estudiantes importados exitosamente."}
+        return {"message": f"{count} nuevos inscritos. {actualizados} actualizados por CI."}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error procesando archivo: {str(e)}")
 

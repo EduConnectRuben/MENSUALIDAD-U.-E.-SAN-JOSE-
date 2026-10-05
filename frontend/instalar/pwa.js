@@ -1,5 +1,5 @@
 // =============================================
-// PWA Install Button - Mensualidad 27 de Mayo
+// PWA Install Button - Mensualidad San José
 // =============================================
 
 // Crear el botón flotante de instalación
