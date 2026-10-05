@@ -46,7 +46,7 @@ function renderPadres(data) {
                 <td>${index + 1}</td>
                 <td style="font-weight: bold;">${padre.carnet}</td>
                 <td>${padre.nombre_completo}</td>
-                <td><span style="color: #00B050; font-weight: bold;">${hijosTexto}</span></td>
+                <td><span style="color: #00A8CC; font-weight: bold;">${hijosTexto}</span></td>
                 <td><span class="badge badge-info" style="background: rgba(255,255,255,0.1); border: 1px solid #aaa; color: #ddd; padding: 4px 8px; border-radius: 10px;">${cursosTexto}</span></td>
             </tr>
         `;

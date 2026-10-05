@@ -1,18 +1,19 @@
 :root {
-    --primary-color: #FFA500; /* Naranja institucional */
-    --secondary-color: #00B050; /* Verde institucional */
-    --gold-color: #FFD700;
-    --dark-bg: #1e1e1e;
-    --glass-bg: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.2);
-    --text-light: #ffffff;
-    --text-dark: #333333;
+    --primary-color: #FFD700; /* Amarillo San José */
+    --secondary-color: #00A8CC; /* Teal/Azul San José */
+    --gold-color: #FFC107;
+    --danger-color: #E53935; /* Rojo de las letras inferiores */
+    --dark-bg: #0f172a;
+    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(255, 215, 0, 0.25);
+    --text-light: #f8fafc;
+    --text-dark: #1e293b;
 }
 
 body {
     margin: 0;
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #111, #2a2a2a);
+    background: linear-gradient(135deg, #020617, #0f172a, #083344);
     color: var(--text-light);
     min-height: 100vh;
 }
@@ -45,7 +46,7 @@ body {
 .navbar h1 {
     margin: 0;
     font-size: 1.5rem;
-    background: linear-gradient(to right, var(--primary-color), var(--gold-color));
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -130,7 +131,7 @@ body {
 }
 
 .btn-success {
-    background: linear-gradient(135deg, var(--secondary-color), #009040);
+    background: linear-gradient(135deg, var(--secondary-color), #00838F);
     color: white;
 }
 
@@ -234,9 +235,9 @@ tr:hover {
         margin-left: 0 !important;
         font-size: 0.82rem;
         padding: 0.55rem 0.5rem;
-        background: rgba(255, 165, 0, 0.08);
+        background: rgba(255, 215, 0, 0.08);
         border-radius: 8px;
-        border: 1px solid rgba(255, 165, 0, 0.25);
+        border: 1px solid rgba(255, 215, 0, 0.25);
         text-align: center;
         display: flex;
         align-items: center;
@@ -245,8 +246,8 @@ tr:hover {
     }
 
     .nav-links a:hover, .nav-links a.active {
-        background: rgba(255, 165, 0, 0.2);
-        border-color: rgba(255, 165, 0, 0.6);
+        background: rgba(255, 215, 0, 0.2);
+        border-color: rgba(255, 215, 0, 0.6);
     }
 
     .navbar .logo-container {

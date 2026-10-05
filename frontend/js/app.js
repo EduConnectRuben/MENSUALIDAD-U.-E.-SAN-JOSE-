@@ -16,7 +16,7 @@ let hijosSeleccionados = [];
 let debounceTimer;
 
 // ---- Utilidad: toast de confirmación ----
-function showToast(msg, color = '#00B050') {
+function showToast(msg, color = '#00A8CC') {
     const toast = document.createElement('div');
     toast.className = 'notification-toast';
     toast.style.background = color;
@@ -42,7 +42,7 @@ btnBuscarPadre.addEventListener('click', async () => {
             padreIdInput.value = '';
             inputNombrePadre.value = '';
             inputNombrePadre.focus();
-            showToast('Padre no encontrado. Ingrese su nombre para registrarlo.', '#FFA500');
+            showToast('Padre no encontrado. Ingrese su nombre para registrarlo.', '#00A8CC');
         }
     } catch (error) {
         console.error("Error buscando padre:", error);
@@ -83,7 +83,7 @@ searchEstudiante.addEventListener('input', () => {
                     display: flex; justify-content: space-between; align-items: center;
                     padding: 0.6rem; background: rgba(255,255,255,0.05);
                     margin-bottom: 0.4rem; border-radius: 8px;
-                    border-left: 3px solid ${isSelected ? '#00B050' : 'transparent'};
+                    border-left: 3px solid ${isSelected ? '#00A8CC' : 'transparent'};
                 `;
                 div.innerHTML = `
                     <div>
@@ -283,17 +283,17 @@ btnGenerarRecibo.addEventListener('click', async () => {
             const bg = i % 2 === 0 ? '#fff' : '#fafafa';
             if (hijo) {
                 tr.innerHTML = `
-                    <td style="border:1px solid #FFA500;padding:10px 10px;text-align:center;background:${bg};font-weight:700;">${i+1}°</td>
-                    <td style="border:1px solid #FFA500;padding:10px 10px;background:${bg};font-weight:600;">${hijo.apellidos} ${hijo.nombres}</td>
-                    <td style="border:1px solid #FFA500;padding:10px 10px;text-align:center;background:${bg};">${hijo.ci || '-'}</td>
-                    <td style="border:1px solid #FFA500;padding:10px 10px;text-align:center;background:${bg};font-weight:600;color:#00B050;">${hijo.curso} "${hijo.paralelo}"</td>
+                    <td style="border:1px solid #00A8CC;padding:10px 10px;text-align:center;background:${bg};font-weight:700;">${i+1}°</td>
+                    <td style="border:1px solid #00A8CC;padding:10px 10px;background:${bg};font-weight:600;">${hijo.apellidos} ${hijo.nombres}</td>
+                    <td style="border:1px solid #00A8CC;padding:10px 10px;text-align:center;background:${bg};">${hijo.ci || '-'}</td>
+                    <td style="border:1px solid #00A8CC;padding:10px 10px;text-align:center;background:${bg};font-weight:600;color:#00A8CC;">${hijo.curso} "${hijo.paralelo}"</td>
                 `;
             } else {
                 tr.innerHTML = `
-                    <td style="border:1px solid #FFA500;padding:10px 10px;text-align:center;background:${bg};color:#ddd;">${i+1}°</td>
-                    <td style="border:1px solid #FFA500;padding:10px 10px;background:${bg};"></td>
-                    <td style="border:1px solid #FFA500;padding:10px 10px;background:${bg};"></td>
-                    <td style="border:1px solid #FFA500;padding:10px 10px;background:${bg};"></td>
+                    <td style="border:1px solid #00A8CC;padding:10px 10px;text-align:center;background:${bg};color:#ddd;">${i+1}°</td>
+                    <td style="border:1px solid #00A8CC;padding:10px 10px;background:${bg};"></td>
+                    <td style="border:1px solid #00A8CC;padding:10px 10px;background:${bg};"></td>
+                    <td style="border:1px solid #00A8CC;padding:10px 10px;background:${bg};"></td>
                 `;
             }
             printTbody.appendChild(tr);

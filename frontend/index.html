@@ -27,7 +27,7 @@
         .receipt-logo { width: 80px; height: 80px; object-fit: contain; }
         .notification-toast {
             position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
-            background: #00B050; color: white; padding: 14px 28px; border-radius: 50px;
+            background: #D4AF37; color: white; padding: 14px 28px; border-radius: 50px;
             font-weight: 600; font-size: 15px; z-index: 99999;
             box-shadow: 0 4px 20px rgba(0,176,80,0.5);
             animation: slideUp 0.4s ease;
@@ -163,43 +163,43 @@
             }
         }
     </style>
-    <div id="printReceiptArea" style="display:none; background:white; padding:30px 40px; max-width:780px; margin:0 auto; font-family:'Arial',sans-serif; color:#111;">
+        <div id="printReceiptArea" style="display:none; background:white; padding:30px 40px; max-width:780px; margin:0 auto; font-family:'Arial',sans-serif; color:#111;">
         
         <!-- CABECERA INSTITUCIONAL -->
-        <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:3px solid #FFA500; padding-bottom:15px; margin-bottom:30px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:3px solid #00A19D; padding-bottom:15px; margin-bottom:30px;">
             <div style="display:flex;align-items:center;gap:15px;">
                 <img id="printLogo" src="images/logo.png" class="receipt-logo" alt="Logo" onerror="this.style.display='none'">
                 <div>
-                    <div style="font-size:17px;font-weight:900;color:#FFA500;text-transform:uppercase;letter-spacing:1px;">Unidad Educativa</div>
+                    <div style="font-size:17px;font-weight:900;color:#00A19D;text-transform:uppercase;letter-spacing:1px;">Unidad Educativa</div>
                     <div style="font-size:22px;font-weight:900;color:#1a1a1a;text-transform:uppercase;letter-spacing:2px;">San José</div>
                     <div style="font-size:11px;color:#555;">Bolivia - Santa Cruz - Pailón | Cód. SIE: 71940029</div>
                     <div style="font-size:11px;color:#555;">Tel/Cel: 77633299</div>
                 </div>
             </div>
             <div style="text-align:right;">
-                <div style="background:#FFA500;color:white;padding:6px 18px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">RECIBO OFICIAL</div>
-                <div style="font-size:22px;font-weight:900;color:#c0392b;">N° <span id="printNroRecibo">-----</span></div>
+                <div style="background:#00A19D;color:white;padding:6px 18px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">RECIBO OFICIAL</div>
+                <div style="font-size:22px;font-weight:900;color:#D32F2F;">N° <span id="printNroRecibo">-----</span></div>
                 <div style="font-size:12px;color:#555;">Fecha: <span id="printFecha" style="font-weight:700;"></span></div>
             </div>
         </div>
 
         <!-- DATOS DEL APODERADO -->
-        <div style="background:#fff9f0;border:1px solid #FFA500;border-radius:8px;padding:12px 18px;margin-bottom:30px;">
-            <div style="font-size:11px;font-weight:700;color:#FFA500;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Padre / Madre / Tutor Apoderado</div>
+        <div style="background:#e6f7f6;border:1px solid #00A19D;border-radius:8px;padding:12px 18px;margin-bottom:30px;">
+            <div style="font-size:11px;font-weight:700;color:#00A19D;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Padre / Madre / Tutor Apoderado</div>
             <div style="font-size:16px;font-weight:700;color:#1a1a1a;" id="printNombrePadre">---</div>
             <div style="font-size:11px;color:#777;margin-top:2px;">C.I.: <span id="printCarnetPadre">---</span></div>
         </div>
 
         <!-- TABLA DE ESTUDIANTES -->
         <div style="margin-bottom:35px;">
-            <div style="font-size:12px;font-weight:700;color:#FFA500;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Estudiantes Inscritos Beneficiados</div>
-            <table style="width:100%;border-collapse:collapse;font-size:12px;border: 1px solid #FFA500;">
+            <div style="font-size:12px;font-weight:700;color:#00A19D;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Estudiantes Inscritos Beneficiados</div>
+            <table style="width:100%;border-collapse:collapse;font-size:12px;border: 1px solid #00A19D;">
                 <thead>
-                    <tr style="background:#FFA500;">
-                        <th style="border:1px solid #FFA500;padding:10px 10px;text-align:center;color:white;width:40px;">N°</th>
-                        <th style="border:1px solid #FFA500;padding:10px 10px;text-align:left;color:white;">Nombre Completo del Estudiante</th>
-                        <th style="border:1px solid #FFA500;padding:10px 10px;text-align:center;color:white;width:120px;">C.I.</th>
-                        <th style="border:1px solid #FFA500;padding:10px 10px;text-align:center;color:white;width:160px;">Curso / Paralelo</th>
+                    <tr style="background:#00A19D;">
+                        <th style="border:1px solid #00A19D;padding:10px 10px;text-align:center;color:white;width:40px;">N°</th>
+                        <th style="border:1px solid #00A19D;padding:10px 10px;text-align:left;color:white;">Nombre Completo del Estudiante</th>
+                        <th style="border:1px solid #00A19D;padding:10px 10px;text-align:center;color:white;width:120px;">C.I.</th>
+                        <th style="border:1px solid #00A19D;padding:10px 10px;text-align:center;color:white;width:160px;">Curso / Paralelo</th>
                     </tr>
                 </thead>
                 <tbody id="printTbodyHijos"></tbody>
@@ -207,20 +207,20 @@
         </div>
 
         <!-- CONCEPTO Y MESES -->
-        <div style="background:#f0fff5;border:1px solid #00B050;border-radius:8px;padding:12px 18px;margin-bottom:30px;">
-            <div style="font-size:11px;font-weight:700;color:#00B050;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Por Concepto De:</div>
-            <div style="font-size:13px;font-weight:600;color:#1a1a1a;">PAGO DE MENSUALIDAD (15 Bs. por estudiante/mes)</div>
-            <div style="font-size:11px;color:#555;margin-top:3px;">Meses Cancelados: <span id="printMeses" style="font-weight:bold;color:#00B050;">---</span></div>
+        <div style="background:#fffde7;border:1px solid #b8860b;border-radius:8px;padding:12px 18px;margin-bottom:30px;">
+            <div style="font-size:11px;font-weight:700;color:#b8860b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Por Concepto De:</div>
+            <div style="font-size:13px;font-weight:600;color:#1a1a1a;">PAGO DE MENSUALIDAD (15 Bs. por familia/mes)</div>
+            <div style="font-size:11px;color:#555;margin-top:3px;">Meses Cancelados: <span id="printMeses" style="font-weight:bold;color:#b8860b;">---</span></div>
         </div>
 
         <!-- MONTO TOTAL -->
-        <div style="display:flex;justify-content:space-between;align-items:center;background:#1a1a1a;border-radius:8px;padding:14px 20px;margin-bottom:40px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#0a192f;border-radius:8px;padding:14px 20px;margin-bottom:40px;">
             <div>
-                <div style="font-size:11px;color:#FFA500;font-weight:700;text-transform:uppercase;letter-spacing:1px;">La Suma De:</div>
+                <div style="font-size:11px;color:#FFD700;font-weight:700;text-transform:uppercase;letter-spacing:1px;">La Suma De:</div>
                 <div style="font-size:15px;color:white;font-weight:700;" id="printMontoLetras">---</div>
             </div>
             <div style="text-align:right;">
-                <div style="font-size:11px;color:#FFA500;font-weight:700;">MONTO TOTAL</div>
+                <div style="font-size:11px;color:#FFD700;font-weight:700;">MONTO TOTAL</div>
                 <div style="font-size:32px;color:white;font-weight:900;"><span id="printMontoTotal">50</span> <span style="font-size:16px;">Bs.</span></div>
             </div>
         </div>
@@ -232,7 +232,7 @@
                 <div style="font-size:10px;color:#888;margin-top:2px;">Padre / Madre / Tutor</div>
             </div>
             <div style="text-align:center;width:200px;">
-                <div style="border-top:2px dashed #999;padding-top:8px;font-size:12px;color:#555;">RECIBI CONFORME</div>
+                <div style="border-top:2px dashed #999;padding-top:8px;font-size:12px;color:#555;">RECIBÍ CONFORME</div>
                 <div style="font-size:10px;color:#888;margin-top:2px;">Secretaria / Tesorera</div>
             </div>
         </div>

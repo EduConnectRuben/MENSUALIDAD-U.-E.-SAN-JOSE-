@@ -19,7 +19,7 @@ Object.assign(installButton.style, {
   bottom: '25px',
   right: '25px',
   padding: '12px 22px',
-  background: 'linear-gradient(135deg, #FFA500, #e08800)',
+  background: 'linear-gradient(135deg, #00A8CC, #e08800)',
   color: '#1a1a1a',
   border: 'none',
   borderRadius: '50px',
@@ -107,12 +107,12 @@ if (isIOS && !isInStandalone) {
     <div style="
       position: fixed; bottom: 0; left: 0; right: 0;
       padding: 14px 20px; background: #1e1e1e;
-      border-top: 2px solid #FFA500; text-align: center;
+      border-top: 2px solid #00A8CC; text-align: center;
       z-index: 9999; font-family: Inter, sans-serif;
     ">
       <p style="margin:0; color: #fff; font-size: 14px;">
-        📱 Para instalar: toca <strong style="color:#FFA500;">Compartir</strong> 
-        → <strong style="color:#FFA500;">Añadir a pantalla de inicio</strong>
+        📱 Para instalar: toca <strong style="color:#00A8CC;">Compartir</strong> 
+        → <strong style="color:#00A8CC;">Añadir a pantalla de inicio</strong>
       </p>
     </div>
   `;

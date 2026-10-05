@@ -72,7 +72,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
         const installBtn = document.createElement('a');
         installBtn.href = '#';
         installBtn.id = 'btnInstallApp';
-        installBtn.style.color = '#FFA500';
+        installBtn.style.color = '#00A8CC';
         installBtn.innerHTML = '<i class="fas fa-download"></i> Instalar App';
         installBtn.addEventListener('click', async (e) => {
             e.preventDefault();

@@ -18,7 +18,7 @@
         }
         .metric-title { font-size: 1rem; color: #aaa; margin-bottom: 0.5rem; }
         .metric-value { font-size: 2rem; font-weight: bold; margin: 0; }
-        .text-green { color: #00B050; }
+        .text-green { color: #00A8CC; }
         .text-red { color: #ff4444; }
         .text-gold { color: var(--gold-color); }
     </style>
@@ -117,7 +117,7 @@
                 data.transacciones.forEach(t => {
                     const tr = document.createElement('tr');
                     const fecha = new Date(t.fecha).toLocaleString();
-                    const color = t.tipo === 'ingreso' ? '#00B050' : '#ff4444';
+                    const color = t.tipo === 'ingreso' ? '#00A8CC' : '#ff4444';
                     const signo = t.tipo === 'ingreso' ? '+' : '-';
                     const icon = t.tipo === 'ingreso' ? 'arrow-down' : 'arrow-up';
                     
