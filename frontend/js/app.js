@@ -146,13 +146,13 @@ function actualizarResumen() {
     const mesesSeleccionados = Array.from(monthCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
     const numMeses = mesesSeleccionados.length;
     
-    const total = numHijos * numMeses * 15;
+    // 15 Bs flat per month, regardless of how many children
+    const total = numMeses * 15;
     
     document.getElementById('resumenHijosCount').innerText = numHijos;
-    document.getElementById('resumenHijosDetalle').innerText = (numHijos * 15) + " Bs. (base)";
     
     document.getElementById('resumenMesesCount').innerText = numMeses;
-    document.getElementById('resumenMesesDetalle').innerText = (numMeses * 15) + " Bs. (base)";
+    document.getElementById('resumenMesesDetalle').innerText = (numMeses * 15) + " Bs.";
     
     document.getElementById('resumenTotal').innerText = total + " Bs.";
     return { numHijos, numMeses, mesesSeleccionados, total };
