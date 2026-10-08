@@ -12,7 +12,7 @@
         .badge {
             padding: 5px 10px;
             border-radius: 12px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: bold;
         }
         .badge-success { background: rgba(0, 176, 80, 0.2); color: #00A8CC; border: 1px solid #00A8CC; }
@@ -165,9 +165,9 @@
                         const btnNuevoTitle = est.estado_matricula === 'Nuevo' ? 'Quitar Nuevo' : 'Marcar Nuevo';
                         
                         const btnHtml = `
-                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                                <button class="btn" title="${btnTitle}" style="background: ${btnColor}; color: white; padding: 4px 8px; font-size: 0.8rem; white-space: nowrap;" onclick="darDeBaja(${est.id}, '${est.nombres}')"><i class="fas ${btnIcon}"></i> ${btnTitle}</button>
-                                <button class="btn" title="${btnNuevoTitle}" style="background: ${btnNuevoColor}; color: white; padding: 4px 8px; font-size: 0.8rem; white-space: nowrap;" onclick="marcarNuevo(${est.id}, '${est.nombres}')"><i class="fas fa-star"></i> ${btnNuevoTitle}</button>
+                            <div style="display: flex; gap: 5px; flex-wrap: nowrap;">
+                                <button class="btn" title="${btnTitle}" style="background: ${btnColor}; color: white; padding: 3px 6px; font-size: 0.75rem; white-space: nowrap;" onclick="darDeBaja(${est.id}, '${est.nombres}')"><i class="fas ${btnIcon}"></i> ${btnTitle}</button>
+                                <button class="btn" title="${btnNuevoTitle}" style="background: ${btnNuevoColor}; color: white; padding: 3px 6px; font-size: 0.75rem; white-space: nowrap;" onclick="marcarNuevo(${est.id}, '${est.nombres}')"><i class="fas fa-star"></i> ${btnNuevoTitle}</button>
                             </div>
                         `;
 
