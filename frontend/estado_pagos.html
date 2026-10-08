@@ -69,6 +69,7 @@
                         <option value="">Todos</option>
                         <option value="Cancelado">Cancelado</option>
                         <option value="Pendiente">Pendiente</option>
+                        <option value="Retirado">Retirados (Baja)</option>
                     </select>
                 </div>
                 <div class="form-group" style="display: flex; align-items: flex-end;">
@@ -85,6 +86,7 @@
                             <th>Curso / Paralelo</th>
                             <th>C.I.</th>
                             <th>Estado de Pago</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyEstadoPagos">
@@ -145,18 +147,29 @@
                             estadoText = 'Gestión Completa (10 meses)';
                         }
                         
+                        const badgeClass = est.estado_pago === 'Pendiente' ? 'badge-danger' : 'badge-success';
                         let badgeHtml = `<span class="badge ${badgeClass}">${estadoText}</span>`;
+                        
+                        const btnColor = est.estado_matricula === 'Retirado' ? '#ff9800' : '#888';
+                        const btnIcon = est.estado_matricula === 'Retirado' ? 'fa-user-check' : 'fa-user-times';
+                        const btnTitle = est.estado_matricula === 'Retirado' ? 'Reactivar' : 'Dar de Baja';
+                        const btnHtml = `<button class="btn" title="${btnTitle}" style="background: ${btnColor}; color: white; padding: 4px 8px; font-size: 0.8rem;" onclick="darDeBaja(${est.id}, '${est.nombres}')"><i class="fas ${btnIcon}"></i></button>`;
+
                         if (est.estado_matricula === 'Retirado') {
                             badgeHtml += ` <br><span class="badge badge-danger" style="margin-top:4px; display:inline-block;">Retirado</span>`;
                         }
 
+                        const styleRow = est.estado_matricula === 'Retirado' ? 'color: #ff4444; text-decoration: line-through;' : '';
+
                         const tr = document.createElement('tr');
+                        tr.style.cssText = styleRow;
                         tr.innerHTML = `
                             <td>${idx + 1}</td>
                             <td>${est.apellidos} ${est.nombres}</td>
                             <td>${est.curso} "${est.paralelo}"</td>
                             <td>${est.ci || '-'}</td>
                             <td>${badgeHtml}</td>
+                            <td>${btnHtml}</td>
                         `;
                         tbody.appendChild(tr);
                     });
@@ -175,6 +188,18 @@
             // Auto load
             btnFiltrar.click();
         });
+
+        window.darDeBaja = async function(id, nombre) {
+            if (!confirm(`¿Cambiar estado de Retirado/Activo para ${nombre}?`)) return;
+            try {
+                const response = await fetchWithAuth(`/api/estudiantes/${id}/baja`, { method: 'PUT' });
+                if (response.ok) document.getElementById('btnFiltrar').click();
+                else alert("Error al cambiar estado.");
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
     </script>
 </body>
 </html>
