@@ -211,6 +211,8 @@ def get_estudiantes(
             query = query.filter(models.Estudiante.estado_pago == 'Pendiente', models.Estudiante.estado_matricula != 'Retirado')
         elif estado_pago == 'Retirado':
             query = query.filter(models.Estudiante.estado_matricula == 'Retirado')
+        elif estado_pago == 'Nuevo':
+            query = query.filter(models.Estudiante.estado_matricula == 'Nuevo')
         else:
             query = query.filter(models.Estudiante.estado_pago == estado_pago)
     if search:
