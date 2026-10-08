@@ -156,11 +156,13 @@
                         const btnTitle = est.estado_matricula === 'Retirado' ? 'Reactivar' : 'Dar de Baja';
                         
                         const btnNuevoColor = est.estado_matricula === 'Nuevo' ? '#00A8CC' : '#444';
-                        const btnNuevoTitle = est.estado_matricula === 'Nuevo' ? 'Quitar etiqueta Nuevo' : 'Marcar como Nuevo Ingreso';
+                        const btnNuevoTitle = est.estado_matricula === 'Nuevo' ? 'Quitar Nuevo' : 'Marcar Nuevo';
                         
                         const btnHtml = `
-                            <button class="btn" title="${btnTitle}" style="background: ${btnColor}; color: white; padding: 4px 8px; font-size: 0.8rem;" onclick="darDeBaja(${est.id}, '${est.nombres}')"><i class="fas ${btnIcon}"></i></button>
-                            <button class="btn" title="${btnNuevoTitle}" style="background: ${btnNuevoColor}; color: white; padding: 4px 8px; font-size: 0.8rem;" onclick="marcarNuevo(${est.id}, '${est.nombres}')"><i class="fas fa-star"></i></button>
+                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                <button class="btn" title="${btnTitle}" style="background: ${btnColor}; color: white; padding: 4px 8px; font-size: 0.8rem; white-space: nowrap;" onclick="darDeBaja(${est.id}, '${est.nombres}')"><i class="fas ${btnIcon}"></i> ${btnTitle}</button>
+                                <button class="btn" title="${btnNuevoTitle}" style="background: ${btnNuevoColor}; color: white; padding: 4px 8px; font-size: 0.8rem; white-space: nowrap;" onclick="marcarNuevo(${est.id}, '${est.nombres}')"><i class="fas fa-star"></i> ${btnNuevoTitle}</button>
+                            </div>
                         `;
 
                         if (est.estado_matricula === 'Retirado') {
