@@ -73,7 +73,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
         installBtn.href = '#';
         installBtn.id = 'btnInstallApp';
         installBtn.style.color = '#00A8CC';
-        installBtn.innerHTML = '<i class="fas fa-download"></i> Instalar App';
+        installBtn.innerHTML = '<i class="fas fa-download"></i> Instalar';
         installBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             // Show the install prompt
