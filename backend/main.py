@@ -206,7 +206,11 @@ def get_estudiantes(
         query = query.filter(models.Estudiante.paralelo == paralelo)
     if estado_pago:
         if estado_pago == 'Cancelado':
-            query = query.filter(models.Estudiante.estado_pago != 'Pendiente')
+            query = query.filter(models.Estudiante.estado_pago != 'Pendiente', models.Estudiante.estado_matricula != 'Retirado')
+        elif estado_pago == 'Pendiente':
+            query = query.filter(models.Estudiante.estado_pago == 'Pendiente', models.Estudiante.estado_matricula != 'Retirado')
+        elif estado_pago == 'Retirado':
+            query = query.filter(models.Estudiante.estado_matricula == 'Retirado')
         else:
             query = query.filter(models.Estudiante.estado_pago == estado_pago)
     if search:
@@ -227,8 +231,8 @@ def dar_de_baja_estudiante(
     db: Session = Depends(get_db),
     current_user: models.Usuario = Depends(get_current_user)
 ):
-    if current_user.rol != "admin":
-        raise HTTPException(status_code=403, detail="Solo el director puede dar de baja estudiantes")
+    # Ambos (admin y secretaria) pueden dar de baja a un estudiante
+    # Eliminada la restricción de rol "admin" aquí.
     
     estudiante = db.query(models.Estudiante).filter(models.Estudiante.id == estudiante_id).first()
     if not estudiante:
