@@ -48,24 +48,22 @@
     </nav>
 
     <div class="container">
-        <div class="glass-panel" style="max-width: 850px; margin: 0 auto; padding: 1.5rem;">
+        <div class="glass-panel" style="max-width: 700px; margin: 0 auto; padding: 1.2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <h3 style="color: var(--gold-color); margin: 0;"><i class="fas fa-cloud-upload-alt"></i> Importar Estudiantes desde Excel</h3>
-                <button id="btnDescargarPlantilla" class="btn btn-success" style="padding: 6px 15px; font-size: 0.9rem;">
-                    <i class="fas fa-download"></i> Plantilla Excel
+                <h3 style="color: var(--gold-color); margin: 0; font-size: 1.3rem;"><i class="fas fa-cloud-upload-alt"></i> Importar Estudiantes desde Excel</h3>
+                <button id="btnDescargarPlantilla" class="btn btn-success" style="padding: 5px 10px; font-size: 0.85rem;">
+                    <i class="fas fa-download"></i> Descargar Plantilla
                 </button>
             </div>
-            <p style="color: #aaa; font-size: 0.9rem; margin-top: 0; margin-bottom: 1.5rem;">
-                Sube la lista de inscritos. Columnas obligatorias: <strong>Nombres | Apellidos | CI (Opcional)</strong>.
+            <p style="color: #aaa; font-size: 0.85rem; margin-top: 0; margin-bottom: 1rem;">
+                Sube la lista de inscritos. Columnas obligatorias: <strong>Nombres | Apellidos | CI (Opcional)</strong> a partir de la fila 2.
             </p>
 
-            <form id="formUpload" style="display: flex; gap: 2rem; align-items: stretch;">
-                
-                <!-- Columna Izquierda: Controles -->
-                <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label style="font-size: 0.9rem;">Curso Destino:</label>
-                        <select id="curso" class="form-control" required>
+            <form id="formUpload">
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label style="font-size: 0.85rem;">Curso Destino:</label>
+                        <select id="curso" class="form-control" style="padding: 0.5rem;" required>
                             <option value="">Seleccione...</option>
                             <option value="1ro Secundaria">1ro Secundaria</option>
                             <option value="2do Secundaria">2do Secundaria</option>
@@ -75,33 +73,32 @@
                             <option value="6to Secundaria">6to Secundaria</option>
                         </select>
                     </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label style="font-size: 0.9rem;">Paralelo Destino:</label>
-                        <select id="paralelo" class="form-control" required>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label style="font-size: 0.85rem;">Paralelo Destino:</label>
+                        <select id="paralelo" class="form-control" style="padding: 0.5rem;" required>
                             <option value="">Seleccione...</option>
                             <option value="A">A</option>
                             <option value="B">B</option>
                             <option value="C">C</option>
                         </select>
                     </div>
-                    
-                    <button type="submit" class="btn btn-primary" style="margin-top: auto; padding: 12px;" id="btnSubir">
-                        <i class="fas fa-upload"></i> Procesar Archivo Excel
-                    </button>
-                    
-                    <div id="resultMsg" style="text-align: center; display: none; padding: 8px; border-radius: 5px; font-size: 0.9rem;"></div>
                 </div>
 
-                <!-- Columna Derecha: Drop Area -->
-                <div style="flex: 1; display: flex; flex-direction: column;">
-                    <label style="font-size: 0.9rem;">Archivo Excel (.xlsx):</label>
-                    <div class="upload-area" id="dropArea" style="flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 1.5rem; cursor: pointer; min-height: 120px;" onclick="document.getElementById('fileInput').click()">
-                        <i class="fas fa-file-excel" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
-                        <h4 style="margin: 0; color: white;" id="fileName">Haz clic para seleccionar</h4>
-                        <p style="color: #aaa; font-size: 0.85rem; margin: 5px 0 0 0;">o arrastra tu archivo aquí</p>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="font-size: 0.85rem;">Archivo Excel (.xlsx):</label>
+                    <div class="upload-area" id="dropArea" style="min-height: 100px; padding: 1rem; cursor: pointer;" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-file-excel" style="font-size: 2rem; margin-bottom: 5px;"></i>
+                        <h4 style="margin: 0; color: white; font-size: 1rem;" id="fileName">Haz clic para seleccionar el archivo</h4>
+                        <p style="color: #aaa; font-size: 0.85rem; margin: 0;">o arrastra y suelta aquí</p>
                     </div>
                     <input type="file" id="fileInput" accept=".xlsx, .xls" style="display: none;" required>
                 </div>
+
+                <div id="resultMsg" style="text-align: center; margin-bottom: 0.5rem; display: none; padding: 5px; border-radius: 5px; font-size: 0.85rem;"></div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.7rem;" id="btnSubir">
+                    <i class="fas fa-upload"></i> Procesar Archivo Excel
+                </button>
             </form>
         </div>
     </div>
