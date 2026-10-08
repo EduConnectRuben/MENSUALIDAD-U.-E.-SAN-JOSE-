@@ -38,8 +38,17 @@ function renderPadres(data) {
         
         // Extraer los cursos de los hijos (evitando duplicados)
         const cursosSet = new Set();
-        padre.estudiantes.forEach(est => cursosSet.add(est.curso));
-        const cursosTexto = Array.from(cursosSet).join(', ') || 'Ninguno';
+        padre.estudiantes.forEach(est => {
+            const grado = est.curso ? est.curso.split(' ')[0] : '';
+            if (grado) {
+                cursosSet.add(`${grado} "${est.paralelo}"`);
+            }
+        });
+        
+        let cursosTexto = 'Ninguno';
+        if (cursosSet.size > 0) {
+            cursosTexto = Array.from(cursosSet).join(', ') + ' de Secundaria';
+        }
 
         tbody.innerHTML += `
             <tr>
