@@ -115,19 +115,23 @@
         });
 
         document.getElementById('btnDescargarPlantilla').addEventListener('click', () => {
-            // Crear el libro de trabajo y la hoja
             const wb = XLSX.utils.book_new();
-            // Nombres de las columnas
+            
             const ws_data = [
                 ['Nombres', 'Apellidos', 'CI']
             ];
+            
+            // Agregar 50 filas vacías (SheetJS respetará el rango si las añadimos)
+            for (let i = 0; i < 50; i++) {
+                ws_data.push(['', '', '']);
+            }
+            
             const ws = XLSX.utils.aoa_to_sheet(ws_data);
             
-            // Ajustar ancho de columnas
-            ws['!cols'] = [ {wch: 25}, {wch: 25}, {wch: 15} ];
+            // Ajustar ancho de columnas para que se vea más como tabla
+            ws['!cols'] = [ {wch: 35}, {wch: 35}, {wch: 15} ];
             
             XLSX.utils.book_append_sheet(wb, ws, "Estudiantes");
-            // Descargar
             XLSX.writeFile(wb, "Plantilla_Inscritos.xlsx");
         });
 
