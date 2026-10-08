@@ -92,27 +92,56 @@ inputSearch.addEventListener('input', handleFilterChange);
 selectCurso.addEventListener('change', handleFilterChange);
 selectParalelo.addEventListener('change', handleFilterChange);
 
-btnExportar.addEventListener('click', async () => {
-    let url = new URL(`${API_URL}/estudiantes/exportar`, window.location.origin);
-    if (selectCurso.value) url.searchParams.append('curso', selectCurso.value);
-    if (selectParalelo.value) url.searchParams.append('paralelo', selectParalelo.value);
-    
-    try {
-        const response = await fetchWithAuth(url);
-        if (!response.ok) throw new Error("Error en descarga");
-        const blob = await response.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = downloadUrl;
-        a.download = 'Lista_Inscritos_27_de_Mayo.xlsx';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(downloadUrl);
-    } catch (error) {
-        console.error(error);
-        alert("Error al descargar el Excel");
+btnExportar.addEventListener('click', () => {
+    if (!window.currentInscritosData || window.currentInscritosData.length === 0) {
+        alert("No hay datos para exportar.");
+        return;
     }
+
+    let xls_html = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <meta charset="utf-8">
+    <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Inscritos</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
+    <body>
+    <table border="1">
+        <tr>
+            <th style="background-color:#FFD700; color:black;">N°</th>
+            <th style="background-color:#FFD700; color:black;">Nombres</th>
+            <th style="background-color:#FFD700; color:black;">Apellidos</th>
+            <th style="background-color:#FFD700; color:black;">C.I.</th>
+            <th style="background-color:#FFD700; color:black;">Curso</th>
+            <th style="background-color:#FFD700; color:black;">Paralelo</th>
+            <th style="background-color:#FFD700; color:black;">Situación (Matrícula)</th>
+        </tr>`;
+
+    window.currentInscritosData.forEach((est, index) => {
+        xls_html += `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${est.nombres}</td>
+            <td>${est.apellidos}</td>
+            <td>${est.ci || '-'}</td>
+            <td>${est.curso || '-'}</td>
+            <td>${est.paralelo || '-'}</td>
+            <td>${est.estado_matricula}</td>
+        </tr>`;
+    });
+
+    xls_html += `</table></body></html>`;
+
+    const blob = new Blob([xls_html], { type: 'application/vnd.ms-excel' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    
+    const curso = document.getElementById('selectCurso').value || 'Todos_Cursos';
+    const paralelo = document.getElementById('selectParalelo').value || 'Todos_Paralelos';
+    let filename = `Lista_Inscritos_${curso}_${paralelo}.xls`.replace(/ /g, '_');
+    
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 });
 
 // --- DAR DE BAJA ---
