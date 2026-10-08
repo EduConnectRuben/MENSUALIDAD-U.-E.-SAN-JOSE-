@@ -23,7 +23,10 @@ async function fetchPadres() {
     }
 }
 
+let currentPadresData = [];
+
 function renderPadres(data) {
+    currentPadresData = data;
     tbody.innerHTML = '';
     totalPadres.innerText = `Total: ${data.length}`;
     
@@ -75,3 +78,62 @@ inputSearch.addEventListener('input', () => {
 });
 
 fetchPadres();
+
+window.exportarExcelPadres = function() {
+    if (!currentPadresData || currentPadresData.length === 0) {
+        alert("No hay datos para exportar.");
+        return;
+    }
+
+    let xls_html = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <meta charset="utf-8">
+    <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Padres</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
+    <body>
+    <table border="1">
+        <tr>
+            <th style="background-color:#FFD700; color:black;">N°</th>
+            <th style="background-color:#FFD700; color:black;">Carnet (C.I.)</th>
+            <th style="background-color:#FFD700; color:black;">Nombre del Padre / Tutor</th>
+            <th style="background-color:#FFD700; color:black;">Cantidad de Hijos</th>
+            <th style="background-color:#FFD700; color:black;">Cursos de sus Hijos</th>
+        </tr>`;
+
+    currentPadresData.forEach((padre, index) => {
+        const cantidadHijos = padre.estudiantes.length;
+        const hijosTexto = cantidadHijos === 1 ? '1 hijo' : `${cantidadHijos} hijos`;
+        
+        const cursosSet = new Set();
+        padre.estudiantes.forEach(est => {
+            const grado = est.curso ? est.curso.split(' ')[0] : '';
+            if (grado) {
+                cursosSet.add(`${grado} "${est.paralelo}"`);
+            }
+        });
+        
+        let cursosTexto = 'Ninguno';
+        if (cursosSet.size > 0) {
+            cursosTexto = Array.from(cursosSet).join(', ') + ' de Secundaria';
+        }
+
+        xls_html += `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${padre.carnet}</td>
+            <td>${padre.nombre_completo}</td>
+            <td>${hijosTexto}</td>
+            <td>${cursosTexto}</td>
+        </tr>`;
+    });
+
+    xls_html += `</table></body></html>`;
+
+    const blob = new Blob([xls_html], { type: 'application/vnd.ms-excel' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Lista_Padres_Tutores.xls`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
