@@ -44,14 +44,14 @@ async function fetchEstudiantes() {
                     const btnNuevoTitle = est.estado_matricula === 'Nuevo' ? 'Quitar Nuevo' : 'Marcar Nuevo';
                     
                     accionesHtml = `
-                        <td style="display: flex; gap: 5px; flex-wrap: wrap;">
-                            <button class="btn" title="${btnTitle}" style="background: ${btnColor}; color: white; padding: 4px 8px; font-size: 0.8rem; white-space: nowrap;" onclick="darDeBaja(${est.id}, '${est.nombres}')">
+                        <td style="display: flex; gap: 5px; flex-wrap: nowrap;">
+                            <button class="btn" title="${btnTitle}" style="background: ${btnColor}; color: white; padding: 3px 6px; font-size: 0.75rem; white-space: nowrap;" onclick="darDeBaja(${est.id}, '${est.nombres}')">
                                 <i class="fas ${btnIcon}"></i> ${btnTitle}
                             </button>
-                            <button class="btn" title="${btnNuevoTitle}" style="background: ${btnNuevoColor}; color: white; padding: 4px 8px; font-size: 0.8rem; white-space: nowrap;" onclick="marcarNuevo(${est.id}, '${est.nombres}')">
+                            <button class="btn" title="${btnNuevoTitle}" style="background: ${btnNuevoColor}; color: white; padding: 3px 6px; font-size: 0.75rem; white-space: nowrap;" onclick="marcarNuevo(${est.id}, '${est.nombres}')">
                                 <i class="fas fa-star"></i> ${btnNuevoTitle}
                             </button>
-                            <button class="btn" title="Eliminar definitivamente" style="background: #ff4444; color: white; padding: 4px 8px; font-size: 0.8rem; white-space: nowrap;" onclick="deleteEstudiante(${est.id}, '${est.nombres} ${est.apellidos}')">
+                            <button class="btn" title="Eliminar definitivamente" style="background: #ff4444; color: white; padding: 3px 6px; font-size: 0.75rem; white-space: nowrap;" onclick="deleteEstudiante(${est.id}, '${est.nombres} ${est.apellidos}')">
                                 <i class="fas fa-trash"></i> Eliminar
                             </button>
                         </td>
