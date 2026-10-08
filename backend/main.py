@@ -242,6 +242,20 @@ def dar_de_baja_estudiante(
     db.commit()
     return {"message": f"Estado cambiado a {estudiante.estado_matricula}"}
 
+@app.put("/api/estudiantes/{estudiante_id}/nuevo")
+def marcar_como_nuevo(
+    estudiante_id: int, 
+    db: Session = Depends(get_db),
+    current_user: models.Usuario = Depends(get_current_active_secretaria)
+):
+    estudiante = db.query(models.Estudiante).filter(models.Estudiante.id == estudiante_id).first()
+    if not estudiante:
+        raise HTTPException(status_code=404, detail="Estudiante no encontrado")
+        
+    estudiante.estado_matricula = "Nuevo" if estudiante.estado_matricula != "Nuevo" else "Activo"
+    db.commit()
+    return {"message": f"Estado cambiado a {estudiante.estado_matricula}"}
+
 @app.delete("/api/estudiantes/{estudiante_id}")
 def delete_estudiante(
     estudiante_id: int, 
