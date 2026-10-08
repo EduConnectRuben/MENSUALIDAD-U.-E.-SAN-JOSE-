@@ -39,7 +39,10 @@
 
     <div class="container">
         <div class="glass-panel">
-            <h2 style="color: var(--gold-color); margin-top: 0;"><i class="fas fa-list-check"></i> Auditoría de Pagos por Curso</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="color: var(--gold-color); margin-top: 0; margin-bottom: 0;"><i class="fas fa-list-check"></i> Auditoría de Pagos por Curso</h2>
+                <button id="btnExportar" class="btn btn-info" style="background: #00A8CC; border: none; color: white;" onclick="exportarExcel()"><i class="fas fa-file-excel"></i> Exportar</button>
+            </div>
             
             <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
                 <div class="form-group" style="flex: 1;">
@@ -73,9 +76,8 @@
                         <option value="Nuevo">Nuevos Ingresos</option>
                     </select>
                 </div>
-                <div class="form-group" style="display: flex; align-items: flex-end; gap: 10px;">
+                <div class="form-group" style="display: flex; align-items: flex-end;">
                     <button id="btnFiltrar" class="btn btn-primary"><i class="fas fa-filter"></i> Filtrar</button>
-                    <button id="btnExportar" class="btn btn-success" onclick="exportarExcel()"><i class="fas fa-file-excel"></i> Exportar</button>
                 </div>
             </div>
 
