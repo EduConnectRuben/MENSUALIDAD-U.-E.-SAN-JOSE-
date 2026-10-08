@@ -153,10 +153,19 @@
                         const btnColor = est.estado_matricula === 'Retirado' ? '#ff9800' : '#888';
                         const btnIcon = est.estado_matricula === 'Retirado' ? 'fa-user-check' : 'fa-user-times';
                         const btnTitle = est.estado_matricula === 'Retirado' ? 'Reactivar' : 'Dar de Baja';
-                        const btnHtml = `<button class="btn" title="${btnTitle}" style="background: ${btnColor}; color: white; padding: 4px 8px; font-size: 0.8rem;" onclick="darDeBaja(${est.id}, '${est.nombres}')"><i class="fas ${btnIcon}"></i></button>`;
+                        
+                        const btnNuevoColor = est.estado_matricula === 'Nuevo' ? '#00A8CC' : '#444';
+                        const btnNuevoTitle = est.estado_matricula === 'Nuevo' ? 'Quitar etiqueta Nuevo' : 'Marcar como Nuevo Ingreso';
+                        
+                        const btnHtml = `
+                            <button class="btn" title="${btnTitle}" style="background: ${btnColor}; color: white; padding: 4px 8px; font-size: 0.8rem;" onclick="darDeBaja(${est.id}, '${est.nombres}')"><i class="fas ${btnIcon}"></i></button>
+                            <button class="btn" title="${btnNuevoTitle}" style="background: ${btnNuevoColor}; color: white; padding: 4px 8px; font-size: 0.8rem;" onclick="marcarNuevo(${est.id}, '${est.nombres}')"><i class="fas fa-star"></i></button>
+                        `;
 
                         if (est.estado_matricula === 'Retirado') {
                             badgeHtml += ` <br><span class="badge badge-danger" style="margin-top:4px; display:inline-block;">Retirado</span>`;
+                        } else if (est.estado_matricula === 'Nuevo') {
+                            badgeHtml += ` <br><span class="badge badge-info" style="margin-top:4px; display:inline-block; background: #00A8CC;">Nuevo Ingreso</span>`;
                         }
 
                         const styleRow = est.estado_matricula === 'Retirado' ? 'color: #ff4444; text-decoration: line-through;' : '';
@@ -193,6 +202,17 @@
             if (!confirm(`¿Cambiar estado de Retirado/Activo para ${nombre}?`)) return;
             try {
                 const response = await fetchWithAuth(`/api/estudiantes/${id}/baja`, { method: 'PUT' });
+                if (response.ok) document.getElementById('btnFiltrar').click();
+                else alert("Error al cambiar estado.");
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        
+        window.marcarNuevo = async function(id, nombre) {
+            if (!confirm(`¿Cambiar estado de Nuevo Ingreso para ${nombre}?`)) return;
+            try {
+                const response = await fetchWithAuth(`/api/estudiantes/${id}/nuevo`, { method: 'PUT' });
                 if (response.ok) document.getElementById('btnFiltrar').click();
                 else alert("Error al cambiar estado.");
             } catch (error) {

@@ -132,8 +132,12 @@ function actualizarCarrito() {
     
     // Determine paid months based on the first selected child
     let paidMonths = new Set();
+    window.esEstudianteNuevo = false;
     if (hijosSeleccionados.length > 0) {
         const firstChild = hijosSeleccionados[0];
+        if (firstChild.estado_matricula === 'Nuevo') {
+            window.esEstudianteNuevo = true;
+        }
         if (firstChild.estado_pago && firstChild.estado_pago !== 'Pendiente') {
             firstChild.estado_pago.split(',').forEach(m => paidMonths.add(m.trim()));
         }
@@ -168,10 +172,28 @@ const monthCheckboxes = Array.from(document.querySelectorAll('.month-checkbox in
 monthCheckboxes.forEach((cb, index) => {
     cb.addEventListener('change', (e) => {
         if (e.target.checked) {
-            // Si se marca, obligar a marcar todos los anteriores disponibles
-            for (let i = 0; i < index; i++) {
-                if (!monthCheckboxes[i].disabled) {
-                    monthCheckboxes[i].checked = true;
+            // Logica Anti-Salto
+            // Si es estudiante Nuevo y es su PRIMER mes pagado, no forzamos marcar anteriores.
+            // Una vez que marcó un mes, sí forzamos desde su mes de inicio.
+            let hasAnyCheckedBefore = false;
+            for(let i=0; i<index; i++) {
+                if(monthCheckboxes[i].checked) hasAnyCheckedBefore = true;
+            }
+            
+            // Si no es Nuevo, o si ya marcó algo antes, forzamos marcar todos los anteriores disponibles hasta el inicio
+            if (!window.esEstudianteNuevo || hasAnyCheckedBefore) {
+                // Find where to start forcing (after the last disabled or from 0)
+                let startIndex = 0;
+                if(window.esEstudianteNuevo) {
+                     for(let i=0; i<index; i++) {
+                         if(monthCheckboxes[i].checked) { startIndex = i; break; }
+                     }
+                }
+                
+                for (let i = startIndex; i < index; i++) {
+                    if (!monthCheckboxes[i].disabled) {
+                        monthCheckboxes[i].checked = true;
+                    }
                 }
             }
         } else {

@@ -40,9 +40,15 @@ async function fetchEstudiantes() {
                     const btnTitle = est.estado_matricula === 'Retirado' ? 'Reactivar' : 'Dar de Baja';
                     
                     accionesHtml = `
+                        const btnNuevoColor = est.estado_matricula === 'Nuevo' ? '#00A8CC' : '#444';
+                        const btnNuevoTitle = est.estado_matricula === 'Nuevo' ? 'Quitar etiqueta Nuevo' : 'Marcar como Nuevo Ingreso';
+                        
                         <td style="display: flex; gap: 5px;">
                             <button class="btn" title="${btnTitle}" style="background: ${btnColor}; color: white; padding: 4px 8px;" onclick="darDeBaja(${est.id}, '${est.nombres}')">
                                 <i class="fas ${btnIcon}"></i>
+                            </button>
+                            <button class="btn" title="${btnNuevoTitle}" style="background: ${btnNuevoColor}; color: white; padding: 4px 8px;" onclick="marcarNuevo(${est.id}, '${est.nombres}')">
+                                <i class="fas fa-star"></i>
                             </button>
                             <button class="btn" title="Eliminar definitivamente" style="background: #ff4444; color: white; padding: 4px 8px;" onclick="deleteEstudiante(${est.id}, '${est.nombres} ${est.apellidos}')">
                                 <i class="fas fa-trash"></i>
@@ -52,7 +58,8 @@ async function fetchEstudiantes() {
                 }
 
                 const styleRow = est.estado_matricula === 'Retirado' ? 'color: #ff4444; text-decoration: line-through;' : '';
-                const badgeRetirado = est.estado_matricula === 'Retirado' ? ' <span class="badge badge-danger">Retirado</span>' : '';
+                let badgeRetirado = est.estado_matricula === 'Retirado' ? ' <span class="badge badge-danger">Retirado</span>' : '';
+                if (est.estado_matricula === 'Nuevo') badgeRetirado += ' <span class="badge badge-info" style="background: #00A8CC;">Nuevo Ingreso</span>';
 
                 tbody.innerHTML += `
                     <tr style="${styleRow}">
@@ -112,6 +119,17 @@ window.darDeBaja = async function(id, nombre) {
     if (!confirm(`¿Cambiar estado de Retirado/Activo para ${nombre}?`)) return;
     try {
         const response = await fetchWithAuth(`${API_URL}/estudiantes/${id}/baja`, { method: 'PUT' });
+        if (response.ok) fetchEstudiantes();
+        else alert("Error al cambiar estado.");
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+window.marcarNuevo = async function(id, nombre) {
+    if (!confirm(`¿Cambiar estado de Nuevo Ingreso para ${nombre}?`)) return;
+    try {
+        const response = await fetchWithAuth(`${API_URL}/estudiantes/${id}/nuevo`, { method: 'PUT' });
         if (response.ok) fetchEstudiantes();
         else alert("Error al cambiar estado.");
     } catch (error) {
