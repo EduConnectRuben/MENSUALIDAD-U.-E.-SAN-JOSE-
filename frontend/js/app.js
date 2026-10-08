@@ -129,6 +129,32 @@ function actualizarCarrito() {
             listaHijosSeleccionados.appendChild(li);
         });
     }
+    
+    // Determine paid months based on the first selected child
+    let paidMonths = new Set();
+    if (hijosSeleccionados.length > 0) {
+        const firstChild = hijosSeleccionados[0];
+        if (firstChild.estado_pago && firstChild.estado_pago !== 'Pendiente') {
+            firstChild.estado_pago.split(',').forEach(m => paidMonths.add(m.trim()));
+        }
+    }
+
+    // Disable paid months
+    monthCheckboxes.forEach((cb) => {
+        if (paidMonths.has(cb.value)) {
+            cb.checked = false;
+            cb.disabled = true;
+            cb.parentElement.style.color = '#00A8CC';
+            cb.parentElement.style.textDecoration = 'line-through';
+            cb.parentElement.title = 'Mes ya pagado';
+        } else {
+            cb.disabled = false;
+            cb.parentElement.style.color = 'white';
+            cb.parentElement.style.textDecoration = 'none';
+            cb.parentElement.title = '';
+        }
+    });
+
     actualizarResumen();
 }
 
@@ -138,8 +164,25 @@ window.removerHijo = function(index) {
     searchEstudiante.dispatchEvent(new Event('input'));
 };
 
-const monthCheckboxes = document.querySelectorAll('.month-checkbox input');
-monthCheckboxes.forEach(cb => cb.addEventListener('change', actualizarResumen));
+const monthCheckboxes = Array.from(document.querySelectorAll('.month-checkbox input'));
+monthCheckboxes.forEach((cb, index) => {
+    cb.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            // Si se marca, obligar a marcar todos los anteriores disponibles
+            for (let i = 0; i < index; i++) {
+                if (!monthCheckboxes[i].disabled) {
+                    monthCheckboxes[i].checked = true;
+                }
+            }
+        } else {
+            // Si se desmarca, obligar a desmarcar todos los siguientes
+            for (let i = index + 1; i < monthCheckboxes.length; i++) {
+                monthCheckboxes[i].checked = false;
+            }
+        }
+        actualizarResumen();
+    });
+});
 
 function actualizarResumen() {
     const numHijos = hijosSeleccionados.length;
@@ -195,6 +238,7 @@ function limpiarFormulario() {
     searchEstudiante.value = '';
     resultsEstudiantes.innerHTML = '<p style="color: #aaa; text-align: center; margin: 0;">Los resultados aparecerán aquí.</p>';
     hijosSeleccionados = [];
+    monthCheckboxes.forEach(cb => { cb.checked = false; cb.disabled = false; cb.parentElement.style.color = 'white'; cb.parentElement.style.textDecoration = 'none'; });
     actualizarCarrito();
 }
 
