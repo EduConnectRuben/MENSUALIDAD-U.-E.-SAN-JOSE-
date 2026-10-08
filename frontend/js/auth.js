@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
         adminHideElements.forEach(el => el.style.display = 'none');
         
         // Proteger páginas exclusivas de secretaría
-        if (currentPath.includes('index.html') || currentPath.includes('importar_excel.html') || currentPath.includes('caja_informe.html')) {
+        if (currentPath === '/' || currentPath === '' || currentPath.includes('index.html') || currentPath.includes('importar_excel.html') || currentPath.includes('caja_informe.html')) {
             alert("Acceso denegado: Panel exclusivo de Secretaría.");
             window.location.href = 'estado_pagos.html';
         }
