@@ -80,27 +80,26 @@
                 </div>
             </div>
 
-            <div class="glass-panel" style="grid-column: 3 / 4; align-self: start;">
-                <h3 id="tituloMovimiento" style="color: #00A8CC; margin-top: 0;"><i class="fas fa-money-bill-transfer"></i> Registrar Movimiento</h3>
-                <p style="color: #aaa; font-size: 0.9rem;">Registre dinero entrante (actividades) o saliente (gastos).</p>
+            <div class="glass-panel" style="grid-column: 3 / 4; align-self: start; padding: 1.2rem;">
+                <h4 id="tituloMovimiento" style="color: #00A8CC; margin-top: 0; margin-bottom: 1rem; white-space: nowrap; font-size: 1.25rem;"><i class="fas fa-money-bill-transfer"></i> Registrar Movimiento</h4>
                 
                 <form id="formMovimiento">
-                    <div class="form-group">
-                        <label>Tipo de Movimiento:</label>
+                    <div class="form-group" style="margin-bottom: 0.8rem;">
+                        <label style="font-size: 0.85rem;">Tipo de Movimiento:</label>
                         <select id="tipoMovimiento" class="form-control" required onchange="cambiarEstiloMovimiento()">
-                            <option value="ingreso">Otros Ingresos (Kermes, Actividades, etc.)</option>
-                            <option value="egreso">Egresos (Gastos, Entregas a Dirección)</option>
+                            <option value="ingreso">Ingreso (Actividades, Kermes)</option>
+                            <option value="egreso">Egreso (Gastos, Dirección)</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Monto (Bs):</label>
+                    <div class="form-group" style="margin-bottom: 0.8rem;">
+                        <label style="font-size: 0.85rem;">Monto (Bs):</label>
                         <input type="number" id="montoMov" class="form-control" step="0.5" required min="1">
                     </div>
-                    <div class="form-group">
-                        <label>Descripción / Concepto:</label>
-                        <textarea id="descMov" class="form-control" rows="3" required placeholder="Detalle el motivo..."></textarea>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label style="font-size: 0.85rem;">Descripción / Concepto:</label>
+                        <textarea id="descMov" class="form-control" rows="2" required placeholder="Detalle el motivo..."></textarea>
                     </div>
-                    <button type="submit" class="btn" style="background: #00A8CC; color: white; width: 100%;" id="btnMovimiento">
+                    <button type="submit" class="btn" style="background: #00A8CC; color: white; width: 100%; font-size: 0.9rem;" id="btnMovimiento">
                         <i class="fas fa-plus-circle"></i> Registrar Ingreso
                     </button>
                 </form>
