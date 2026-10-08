@@ -28,6 +28,7 @@ async function fetchEstudiantes() {
     try {
         const response = await fetchWithAuth(url);
         const data = await response.json();
+        window.currentInscritosData = data;
         
         if (data.length === 0) {
             tbody.innerHTML = `<tr><td colspan="${currentRol === 'admin' ? 7 : 6}" style="text-align: center;">No se encontraron estudiantes</td></tr>`;
