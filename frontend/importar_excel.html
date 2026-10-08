@@ -115,24 +115,7 @@
         });
 
         document.getElementById('btnDescargarPlantilla').addEventListener('click', () => {
-            const wb = XLSX.utils.book_new();
-            
-            const ws_data = [
-                ['Nombres', 'Apellidos', 'CI']
-            ];
-            
-            // Agregar 50 filas vacías (SheetJS respetará el rango si las añadimos)
-            for (let i = 0; i < 50; i++) {
-                ws_data.push(['', '', '']);
-            }
-            
-            const ws = XLSX.utils.aoa_to_sheet(ws_data);
-            
-            // Ajustar ancho de columnas para que se vea más como tabla
-            ws['!cols'] = [ {wch: 35}, {wch: 35}, {wch: 15} ];
-            
-            XLSX.utils.book_append_sheet(wb, ws, "Estudiantes");
-            XLSX.writeFile(wb, "Plantilla_Inscritos.xlsx");
+            window.location.href = '/api/estudiantes/plantilla';
         });
 
         document.getElementById('formUpload').addEventListener('submit', async (e) => {
