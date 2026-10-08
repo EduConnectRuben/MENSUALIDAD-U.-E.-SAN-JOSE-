@@ -71,12 +71,16 @@ searchEstudiante.addEventListener('input', () => {
             const data = await response.json();
             
             resultsEstudiantes.innerHTML = '';
-            if (data.length === 0) {
-                resultsEstudiantes.innerHTML = '<p style="color: #aaa; text-align: center;">No se encontraron estudiantes.</p>';
+            
+            // Filtramos a los retirados para que no se puedan cobrar
+            const estudiantesActivos = data.filter(est => est.estado_matricula !== 'Retirado');
+
+            if (estudiantesActivos.length === 0) {
+                resultsEstudiantes.innerHTML = '<p style="color: #aaa; text-align: center;">No se encontraron estudiantes activos.</p>';
                 return;
             }
 
-            data.forEach(est => {
+            estudiantesActivos.forEach(est => {
                 const isSelected = hijosSeleccionados.some(h => h.id === est.id);
                 const div = document.createElement('div');
                 div.style.cssText = `
