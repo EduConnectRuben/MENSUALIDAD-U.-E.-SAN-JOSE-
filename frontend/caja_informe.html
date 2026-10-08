@@ -81,20 +81,27 @@
             </div>
 
             <div class="glass-panel" style="grid-column: 3 / 4; align-self: start;">
-                <h3 style="color: #ff4444; margin-top: 0;"><i class="fas fa-money-bill-transfer"></i> Registrar Egreso</h3>
-                <p style="color: #aaa; font-size: 0.9rem;">Registre el dinero entregado a dirección u otros gastos.</p>
+                <h3 id="tituloMovimiento" style="color: #00A8CC; margin-top: 0;"><i class="fas fa-money-bill-transfer"></i> Registrar Movimiento</h3>
+                <p style="color: #aaa; font-size: 0.9rem;">Registre dinero entrante (actividades) o saliente (gastos).</p>
                 
-                <form id="formEgreso">
+                <form id="formMovimiento">
+                    <div class="form-group">
+                        <label>Tipo de Movimiento:</label>
+                        <select id="tipoMovimiento" class="form-control" required onchange="cambiarEstiloMovimiento()">
+                            <option value="ingreso">Otros Ingresos (Kermes, Actividades, etc.)</option>
+                            <option value="egreso">Egresos (Gastos, Entregas a Dirección)</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label>Monto (Bs):</label>
-                        <input type="number" id="montoEgreso" class="form-control" step="0.5" required min="1">
+                        <input type="number" id="montoMov" class="form-control" step="0.5" required min="1">
                     </div>
                     <div class="form-group">
                         <label>Descripción / Concepto:</label>
-                        <textarea id="descEgreso" class="form-control" rows="3" required placeholder="Ej: Entrega a Dirección"></textarea>
+                        <textarea id="descMov" class="form-control" rows="3" required placeholder="Detalle el motivo..."></textarea>
                     </div>
-                    <button type="submit" class="btn" style="background: #ff4444; color: white; width: 100%;" id="btnEgreso">
-                        <i class="fas fa-check"></i> Registrar Salida
+                    <button type="submit" class="btn" style="background: #00A8CC; color: white; width: 100%;" id="btnMovimiento">
+                        <i class="fas fa-plus-circle"></i> Registrar Ingreso
                     </button>
                 </form>
             </div>
@@ -134,38 +141,57 @@
             }
         }
 
-        document.getElementById('formEgreso').addEventListener('submit', async (e) => {
+        window.cambiarEstiloMovimiento = function() {
+            const tipo = document.getElementById('tipoMovimiento').value;
+            const btn = document.getElementById('btnMovimiento');
+            const titulo = document.getElementById('tituloMovimiento');
+            
+            if (tipo === 'ingreso') {
+                btn.style.background = '#00A8CC';
+                btn.innerHTML = '<i class="fas fa-plus-circle"></i> Registrar Ingreso';
+                titulo.style.color = '#00A8CC';
+            } else {
+                btn.style.background = '#ff4444';
+                btn.innerHTML = '<i class="fas fa-minus-circle"></i> Registrar Salida';
+                titulo.style.color = '#ff4444';
+            }
+        };
+
+        document.getElementById('formMovimiento').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('btnEgreso');
-            const monto = parseFloat(document.getElementById('montoEgreso').value);
-            const desc = document.getElementById('descEgreso').value;
+            const btn = document.getElementById('btnMovimiento');
+            const tipo = document.getElementById('tipoMovimiento').value;
+            const monto = parseFloat(document.getElementById('montoMov').value);
+            const desc = document.getElementById('descMov').value;
             
             btn.disabled = true;
+            const originalHtml = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
             
             try {
-                const res = await fetchWithAuth('/api/caja/egresos', {
+                const res = await fetchWithAuth('/api/caja/movimientos', {
                     method: 'POST',
                     body: JSON.stringify({
-                        tipo: 'egreso',
+                        tipo: tipo,
                         monto: monto,
                         descripcion: desc
                     })
                 });
                 
                 if (res.ok) {
-                    alert("Egreso registrado correctamente.");
-                    document.getElementById('formEgreso').reset();
+                    alert("Movimiento registrado correctamente.");
+                    document.getElementById('formMovimiento').reset();
+                    cambiarEstiloMovimiento(); // restaurar estilo
                     cargarCaja();
                 } else {
                     const err = await res.json();
-                    alert(err.detail || "Error al registrar egreso.");
+                    alert(err.detail || "Error al registrar.");
                 }
             } catch (error) {
                 console.error(error);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-check"></i> Registrar Salida';
+                btn.innerHTML = originalHtml;
             }
         });
 
