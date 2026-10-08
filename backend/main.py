@@ -523,30 +523,30 @@ def get_caja_informe(db: Session = Depends(get_db), current_user: models.Usuario
         "transacciones": transacciones
     }
 
-@app.post("/api/caja/egresos", response_model=schemas.CajaTransaccion)
-def create_egreso(
-    egreso_data: schemas.CajaTransaccionCreate, 
+@app.post("/api/caja/movimientos", response_model=schemas.CajaTransaccion)
+def create_movimiento(
+    mov_data: schemas.CajaTransaccionCreate, 
     db: Session = Depends(get_db),
     current_user: models.Usuario = Depends(get_current_active_secretaria)
 ):
-    if egreso_data.tipo != 'egreso':
-        raise HTTPException(status_code=400, detail="El tipo debe ser 'egreso'")
+    if mov_data.tipo not in ['ingreso', 'egreso']:
+        raise HTTPException(status_code=400, detail="Tipo inválido")
         
-    # Verificar si hay saldo suficiente (opcional, pero buena práctica)
-    informe = get_caja_informe(db, current_user)
-    if informe["saldo_actual"] < egreso_data.monto:
-        raise HTTPException(status_code=400, detail="Saldo insuficiente en caja")
+    if mov_data.tipo == 'egreso':
+        informe = get_caja_informe(db, current_user)
+        if informe["saldo_actual"] < mov_data.monto:
+            raise HTTPException(status_code=400, detail="Saldo insuficiente en caja")
 
-    db_egreso = models.CajaTransaccion(
-        tipo="egreso",
-        monto=egreso_data.monto,
-        descripcion=egreso_data.descripcion,
+    db_mov = models.CajaTransaccion(
+        tipo=mov_data.tipo,
+        monto=mov_data.monto,
+        descripcion=mov_data.descripcion,
         usuario_id=current_user.id
     )
-    db.add(db_egreso)
+    db.add(db_mov)
     db.commit()
-    db.refresh(db_egreso)
-    return db_egreso
+    db.refresh(db_mov)
+    return db_mov
 
 # Mount the frontend directory. This MUST be at the end after all /api routes
 frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend")
