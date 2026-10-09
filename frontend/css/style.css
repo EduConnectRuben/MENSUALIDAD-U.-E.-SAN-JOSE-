@@ -330,3 +330,80 @@ tr:hover {
         font-size: 0.95rem;
     }
 }
+
+
+/* ========================================= */
+/* MEJORAS DE RESPONSIVIDAD (MÓVILES/TABLETS)*/
+/* ========================================= */
+
+/* Asegurar que las barras de filtros se adapten y bajen a la siguiente línea */
+.filters, .search-box, .header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+/* En móviles, los inputs y selects de los filtros ocupan el 100% */
+@media screen and (max-width: 600px) {
+    .filters input, .filters select, .filters button {
+        flex: 1 1 100%;
+        margin-bottom: 5px;
+    }
+    
+    .header-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .header-actions h2 {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .header-actions button {
+        width: 100%;
+    }
+
+    /* Checkboxes de meses: Que se acomoden bonito en móvil */
+    #monthsCheckboxes {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px;
+    }
+}
+
+/* En Tablets intermedias (600px a 900px) */
+@media screen and (min-width: 601px) and (max-width: 900px) {
+    .filters input, .filters select, .filters button {
+        flex: 1 1 calc(50% - 10px);
+    }
+    
+    #monthsCheckboxes {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+/* Arreglar botones de las tablas para que no se compriman demasiado */
+td button, td .btn {
+    white-space: nowrap;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+/* Ajustes adicionales de padding para aprovechar espacio en celular */
+@media screen and (max-width: 400px) {
+    .container {
+        padding: 0.5rem;
+    }
+    .glass-panel {
+        padding: 1rem 0.5rem;
+    }
+    .navbar {
+        padding: 0.5rem;
+    }
+    .nav-links a {
+        font-size: 0.75rem;
+        padding: 0.4rem;
+    }
+}
