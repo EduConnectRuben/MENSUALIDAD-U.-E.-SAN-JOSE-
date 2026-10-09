@@ -303,15 +303,11 @@
                 console.error("Error cargando graficos", e);
             }
         }
-        
-        // Llamar a cargar graficos despues de cargarCaja
-        const oldCargarCaja = cargarCaja;
-        cargarCaja = async function() {
-            await oldCargarCaja();
-            await cargarGraficos();
-        };
 
-document.addEventListener('DOMContentLoaded', cargarCaja);
+        document.addEventListener('DOMContentLoaded', async () => {
+            await cargarCaja();
+            await cargarGraficos();
+        });
 
         window.exportarExcelCaja = function() {
             if (!window.currentCajaData) {
@@ -322,25 +318,19 @@ document.addEventListener('DOMContentLoaded', cargarCaja);
             const d = window.currentCajaData;
             const data = [];
 
-            // Título
             data.push(["Informe de Caja - U.E. San José"]);
-            data.push([]); // Espacio
-
-            // Resumen General
+            data.push([]);
             data.push(["TOTAL INGRESOS", "TOTAL EGRESOS", "SALDO ACTUAL"]);
             data.push([
                 `${d.total_ingresos.toFixed(2)} Bs`,
                 `${d.total_egresos.toFixed(2)} Bs`,
                 `${d.saldo_actual.toFixed(2)} Bs`
             ]);
-            data.push([]); // Espacio
-            data.push([]); // Espacio
-
-            // Título Detalles
+            data.push([]);
+            data.push([]);
             data.push(["Detalle de Movimientos"]);
             data.push(["Fecha y Hora", "Tipo de Movimiento", "Descripción / Concepto", "Monto"]);
 
-            // Filas
             d.transacciones.forEach(t => {
                 const fecha = new Date(t.fecha).toLocaleString();
                 const tipo = t.tipo.toUpperCase();
@@ -350,68 +340,21 @@ document.addEventListener('DOMContentLoaded', cargarCaja);
                 data.push([fecha, tipo, t.descripcion, monto]);
             });
 
-            // Crear Libro
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(data);
 
-            // Ajustar anchos
-            ws['!cols'] = [
-                {wch: 20}, {wch: 20}, {wch: 50}, {wch: 15}
-            ];
+            ws['!cols'] = [{wch: 20}, {wch: 20}, {wch: 50}, {wch: 15}];
 
             XLSX.utils.book_append_sheet(wb, ws, "Informe de Caja");
             XLSX.writeFile(wb, "Informe_de_Caja_San_Jose.xlsx");
         };
-    
-        window.generarBackupMaster = async function() {
-            if(!confirm("Generar el Backup Maestro descargará toda la base de datos (Estudiantes, Padres y Caja). ¿Continuar?")) return;
-            
-            try {
-                // Fetch data
-                const resCaja = await fetchWithAuth('/api/caja/informe');
-                const resEst = await fetchWithAuth('/api/estudiantes?limit=5000');
-                const resPadres = await fetchWithAuth('/api/padres');
-                
-                const dCaja = await resCaja.json();
-                const dEst = await resEst.json();
-                const dPadres = await resPadres.json();
-                
-                const wb = XLSX.utils.book_new();
-                
-                // Sheet 1: Estudiantes
-                const wsEst = XLSX.utils.aoa_to_sheet([
-                    ['ID', 'Nombres', 'Apellidos', 'CI', 'Curso', 'Paralelo', 'Estado Pago', 'Estado Matrícula']
-                ].concat(dEst.map(e => [e.id, e.nombres, e.apellidos, e.ci, e.curso, e.paralelo, e.estado_pago, e.estado_matricula])));
-                XLSX.utils.book_append_sheet(wb, wsEst, "Estudiantes");
-                
-                // Sheet 2: Padres
-                const wsPadres = XLSX.utils.aoa_to_sheet([
-                    ['ID', 'Carnet', 'Nombre']
-                ].concat(dPadres.map(p => [p.id, p.carnet, p.nombre_completo])));
-                XLSX.utils.book_append_sheet(wb, wsPadres, "Padres");
-                
-                // Sheet 3: Caja
-                const wsCaja = XLSX.utils.aoa_to_sheet([
-                    ['Fecha', 'Tipo', 'Descripción', 'Monto Bs']
-                ].concat(dCaja.transacciones.map(t => [new Date(t.fecha).toLocaleString(), t.tipo.toUpperCase(), t.descripcion, t.monto])));
-                XLSX.utils.book_append_sheet(wb, wsCaja, "Transacciones Caja");
-                
-                // Save
-                const fecha = new Date().toISOString().split('T')[0];
-                XLSX.writeFile(wb, `Backup_Maestro_SanJose_${fecha}.xlsx`);
-                
-            } catch(e) {
-                alert("Error generando backup: " + e.message);
-            }
-        };
-
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
         window.generarBackupMaster = async function() {
             if(!confirm("Generar el Backup Maestro descargará toda la base de datos (Estudiantes, Padres y Caja). ¿Continuar?")) return;
             
             try {
-                // Fetch data
                 const resCaja = await fetchWithAuth('/api/caja/informe');
                 const resEst = await fetchWithAuth('/api/estudiantes?limit=5000');
                 const resPadres = await fetchWithAuth('/api/padres');
@@ -422,25 +365,21 @@ document.addEventListener('DOMContentLoaded', cargarCaja);
                 
                 const wb = XLSX.utils.book_new();
                 
-                // Sheet 1: Estudiantes
                 const wsEst = XLSX.utils.aoa_to_sheet([
                     ['ID', 'Nombres', 'Apellidos', 'CI', 'Curso', 'Paralelo', 'Estado Pago', 'Estado Matrícula']
                 ].concat(dEst.map(e => [e.id, e.nombres, e.apellidos, e.ci, e.curso, e.paralelo, e.estado_pago, e.estado_matricula])));
                 XLSX.utils.book_append_sheet(wb, wsEst, "Estudiantes");
                 
-                // Sheet 2: Padres
                 const wsPadres = XLSX.utils.aoa_to_sheet([
                     ['ID', 'Carnet', 'Nombre']
                 ].concat(dPadres.map(p => [p.id, p.carnet, p.nombre_completo])));
                 XLSX.utils.book_append_sheet(wb, wsPadres, "Padres");
                 
-                // Sheet 3: Caja
                 const wsCaja = XLSX.utils.aoa_to_sheet([
                     ['Fecha', 'Tipo', 'Descripción', 'Monto Bs']
                 ].concat(dCaja.transacciones.map(t => [new Date(t.fecha).toLocaleString(), t.tipo.toUpperCase(), t.descripcion, t.monto])));
                 XLSX.utils.book_append_sheet(wb, wsCaja, "Transacciones Caja");
                 
-                // Save
                 const fecha = new Date().toISOString().split('T')[0];
                 XLSX.writeFile(wb, `Backup_Maestro_SanJose_${fecha}.xlsx`);
                 
@@ -448,7 +387,6 @@ document.addEventListener('DOMContentLoaded', cargarCaja);
                 alert("Error generando backup: " + e.message);
             }
         };
-
     </script>
 </body>
 </html>
