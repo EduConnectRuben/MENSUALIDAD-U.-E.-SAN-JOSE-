@@ -4,101 +4,156 @@
     <meta charset="UTF-8">
     <title>Reimprimir Recibo</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Arial', sans-serif;
             background: #f0f0f0;
             display: flex;
             justify-content: center;
             padding: 2rem;
-            color: #333;
+            color: #111;
+            margin: 0;
         }
         .recibo-container {
             background: white;
-            padding: 2rem;
-            border-radius: 10px;
+            padding: 30px 40px;
+            max-width: 780px;
             width: 100%;
-            max-width: 600px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .recibo-header {
-            text-align: center;
-            border-bottom: 2px dashed #ccc;
-            padding-bottom: 1rem;
-            margin-bottom: 1rem;
-        }
-        .recibo-header h2 {
-            margin: 0;
-            color: #00A8CC;
-        }
-        .recibo-details p {
-            margin: 5px 0;
-            font-size: 0.95rem;
-        }
-        .recibo-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        .recibo-table th, .recibo-table td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-        }
-        .recibo-table th {
-            background: #f8f9fa;
-        }
-        .total-row {
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: #ff4444;
-            text-align: right;
+            box-sizing: border-box;
         }
         @media print {
-            body { background: white; padding: 0; }
-            .recibo-container { box-shadow: none; border: none; }
+            @page {
+                margin: 0 !important;
+                size: A4 portrait;
+            }
+            body {
+                background: white;
+                padding: 0;
+            }
+            .recibo-container {
+                box-shadow: none;
+                border: none;
+                padding: 1.5cm 2cm !important;
+                width: 100%;
+            }
+            .firmas-container {
+                margin-top: 100px !important;
+                padding-bottom: 20px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="recibo-container" id="printableRecibo">
-        <div class="recibo-header">
-            <h2>U.E. San José - Recibo de Aportes (COPIA)</h2>
-            <p style="margin: 5px 0;"><strong>N°:</strong> <span id="rNro">-</span></p>
-            <p style="margin: 0; font-size: 0.85rem; color: #666;" id="rFecha">-</p>
-        </div>
-        <div class="recibo-details">
-            <p><strong>Recibí de:</strong> <span id="rPadre">-</span></p>
-            <p><strong>Por concepto de:</strong> Aporte Anual 2026</p>
-            <p><strong>Meses pagados:</strong> <span id="rMeses">-</span></p>
-        </div>
-        <table class="recibo-table">
-            <thead>
-                <tr>
-                    <th>Estudiante</th>
-                    <th>Curso</th>
-                </tr>
-            </thead>
-            <tbody id="rEstudiantes">
-            </tbody>
-        </table>
-        <div style="margin-top: 1rem; text-align: right;">
-            <p class="total-row">TOTAL PAGADO: <span id="rTotal">0</span> Bs</p>
-        </div>
-        <div style="margin-top: 3rem; display: flex; justify-content: space-around; text-align: center;">
-            <div>
-                <p>_______________________</p>
-                <p style="font-size: 0.8rem;">Firma Entregué</p>
+    <div class="recibo-container" id="printReceiptArea">
+        
+        <!-- CABECERA INSTITUCIONAL -->
+        <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:3px solid #00A19D; padding-bottom:15px; margin-bottom:30px;">
+            <div style="display:flex;align-items:center;gap:15px;">
+                <img src="images/logo.png" style="width:70px;height:auto;" alt="Logo" onerror="this.style.display='none'">
+                <div>
+                    <div style="font-size:17px;font-weight:900;color:#00A19D;text-transform:uppercase;letter-spacing:1px;">Unidad Educativa</div>
+                    <div style="font-size:22px;font-weight:900;color:#1a1a1a;text-transform:uppercase;letter-spacing:2px;">San José</div>
+                    <div style="font-size:11px;color:#555;">Bolivia - Santa Cruz - Pailón | Cód. SIE: 71940029</div>
+                    <div style="font-size:11px;color:#555;">Tel/Cel: 77633299</div>
+                </div>
             </div>
-            <div>
-                <p>_______________________</p>
-                <p style="font-size: 0.8rem;">Firma Recibí (Secretaría)</p>
+            <div style="text-align:right;">
+                <div style="background:#00A19D;color:white;padding:6px 18px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">RECIBO OFICIAL</div>
+                <div style="font-size:22px;font-weight:900;color:#D32F2F;">N° <span id="printNroRecibo">-----</span></div>
+                <div style="font-size:12px;color:#555;">Fecha: <span id="printFecha" style="font-weight:700;"></span></div>
             </div>
+        </div>
+
+        <!-- DATOS DEL APODERADO -->
+        <div style="background:#e6f7f6;border:1px solid #00A19D;border-radius:8px;padding:12px 18px;margin-bottom:30px;">
+            <div style="font-size:11px;font-weight:700;color:#00A19D;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Padre / Madre / Tutor Apoderado</div>
+            <div style="font-size:16px;font-weight:700;color:#1a1a1a;" id="printNombrePadre">---</div>
+            <div style="font-size:11px;color:#777;margin-top:2px;">C.I.: <span id="printCarnetPadre">---</span></div>
+        </div>
+
+        <!-- TABLA DE ESTUDIANTES -->
+        <div style="margin-bottom:35px;">
+            <div style="font-size:12px;font-weight:700;color:#00A19D;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Estudiantes Inscritos Beneficiados</div>
+            <table style="width:100%;border-collapse:collapse;font-size:12px;border: 1px solid #00A19D;">
+                <thead>
+                    <tr style="background:#00A19D;">
+                        <th style="border:1px solid #00A19D;padding:10px 10px;text-align:center;color:white;width:40px;">N°</th>
+                        <th style="border:1px solid #00A19D;padding:10px 10px;text-align:left;color:white;">Nombre Completo del Estudiante</th>
+                        <th style="border:1px solid #00A19D;padding:10px 10px;text-align:center;color:white;width:120px;">C.I.</th>
+                        <th style="border:1px solid #00A19D;padding:10px 10px;text-align:center;color:white;width:160px;">Curso / Paralelo</th>
+                    </tr>
+                </thead>
+                <tbody id="printTbodyHijos"></tbody>
+            </table>
+        </div>
+
+        <!-- CONCEPTO Y MESES -->
+        <div style="background:#fffde7;border:1px solid #b8860b;border-radius:8px;padding:12px 18px;margin-bottom:30px;">
+            <div style="font-size:11px;font-weight:700;color:#b8860b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Por Concepto De:</div>
+            <div style="font-size:13px;font-weight:600;color:#1a1a1a;">PAGO DE MENSUALIDAD (15 Bs. por familia/mes)</div>
+            <div style="font-size:11px;color:#555;margin-top:3px;">Meses Cancelados: <span id="printMeses" style="font-weight:bold;color:#b8860b;">---</span></div>
+        </div>
+
+        <!-- MONTO TOTAL -->
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#0a192f;border-radius:8px;padding:14px 20px;margin-bottom:40px;">
+            <div>
+                <div style="font-size:11px;color:#FFD700;font-weight:700;text-transform:uppercase;letter-spacing:1px;">La Suma De:</div>
+                <div style="font-size:15px;color:white;font-weight:700;" id="printMontoLetras">---</div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:11px;color:#FFD700;font-weight:700;">MONTO TOTAL</div>
+                <div style="font-size:32px;color:white;font-weight:900;"><span id="printMontoTotal">0</span> <span style="font-size:16px;">Bs.</span></div>
+            </div>
+        </div>
+
+        <!-- FIRMAS -->
+        <div class="firmas-container" style="display:flex;justify-content:space-around;margin-top:50px;">
+            <div style="text-align:center;width:200px;">
+                <div style="border-top:2px dashed #999;padding-top:8px;font-size:12px;color:#555;">ENTREGUÉ CONFORME</div>
+                <div style="font-size:10px;color:#888;margin-top:2px;">Padre / Madre / Tutor</div>
+            </div>
+            <div style="text-align:center;width:200px;">
+                <div style="border-top:2px dashed #999;padding-top:8px;font-size:12px;color:#555;">RECIBÍ CONFORME</div>
+                <div style="font-size:10px;color:#888;margin-top:2px;">Secretaria / Tesorera</div>
+            </div>
+        </div>
+
+        <!-- PIE DE PÁGINA -->
+        <div style="text-align:center;margin-top:20px;border-top:1px solid #eee;padding-top:10px;">
+            <div style="font-size:10px;color:#aaa;">Este recibo es un documento oficial de la Unidad Educativa San José.</div>
+            <div style="font-size:10px;color:#aaa;">Conserve este comprobante para cualquier consulta futura.</div>
         </div>
     </div>
 
     <script>
+        function numeroALetras(num) {
+            const unidades = ["", "UN", "DOS", "TRES", "CUATRO", "CINCO", "SEIS", "SIETE", "OCHO", "NUEVE"];
+            const decenas = ["", "DIEZ", "VEINTE", "TREINTA", "CUARENTA", "CINCUENTA", "SESENTA", "SETENTA", "OCHENTA", "NOVENTA"];
+            const especiales = {11:"ONCE", 12:"DOCE", 13:"TRECE", 14:"CATORCE", 15:"QUINCE"};
+            
+            if (num === 0) return "CERO";
+            if (num === 100) return "CIEN";
+            
+            let letras = "";
+            let d = Math.floor(num / 10);
+            let u = num % 10;
+
+            if (d === 1 && u > 0 && u <= 5) {
+                letras = especiales[num];
+            } else if (d === 1 && u > 5) {
+                letras = "DIECI" + unidades[u];
+            } else if (d === 2 && u > 0) {
+                letras = "VEINTI" + unidades[u];
+            } else {
+                letras = decenas[d];
+                if (d > 0 && u > 0) letras += " Y ";
+                letras += unidades[u];
+            }
+            return letras + " 00/100 BOLIVIANOS";
+        }
+
         async function loadRecibo() {
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
@@ -108,7 +163,6 @@
             }
 
             try {
-                // Check auth
                 const token = localStorage.getItem('token');
                 if(!token) throw new Error("No token");
 
@@ -120,35 +174,55 @@
                 
                 const recibo = await res.json();
                 
-                document.getElementById('rNro').innerText = recibo.nro_recibo;
-                document.getElementById('rFecha').innerText = new Date(recibo.fecha).toLocaleString();
-                document.getElementById('rPadre').innerText = recibo.padre.nombre_completo;
+                document.getElementById('printNroRecibo').innerText = recibo.nro_recibo;
                 
-                // Extraer meses (vienen en el nro de recibo o descripcion)
-                // Para simplificar, mostramos "Aporte Anual" o lo que esté guardado
-                let mesesStr = "Varios";
-                if(recibo.nro_recibo.includes("(")) {
-                    // Try to extract months from older logic if needed, 
-                    // but we can just say "Según sistema" for now or use the DB field if available.
-                    // Wait, Recibo in DB doesn't save string of months directly on the model, it saves detalles.
-                }
-                document.getElementById('rMeses').innerText = "Meses registrados";
+                const f = new Date(recibo.fecha);
+                const mesesNombres = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+                const fechaStr = `${f.getDate().toString().padStart(2, '0')} de ${mesesNombres[f.getMonth()]} de ${f.getFullYear()}`;
+                document.getElementById('printFecha').innerText = fechaStr;
                 
-                document.getElementById('rTotal').innerText = recibo.monto.toFixed(2);
+                document.getElementById('printNombrePadre').innerText = recibo.padre.nombre_completo;
+                document.getElementById('printCarnetPadre').innerText = recibo.padre.carnet;
+                
+                // Tratar de sacar los meses cancelados. 
+                // Por defecto ponemos 'Aporte Anual' si no hay info.
+                document.getElementById('printMeses').innerText = "Anual";
+                
+                document.getElementById('printMontoTotal').innerText = recibo.monto;
+                document.getElementById('printMontoLetras').innerText = numeroALetras(Math.floor(recibo.monto));
 
-                const tbody = document.getElementById('rEstudiantes');
+                const tbody = document.getElementById('printTbodyHijos');
                 tbody.innerHTML = '';
-                recibo.detalles.forEach(d => {
-                    tbody.innerHTML += `<tr>
-                        <td>${d.estudiante.nombres} ${d.estudiante.apellidos}</td>
-                        <td>${d.estudiante.curso} "${d.estudiante.paralelo}"</td>
-                    </tr>`;
-                });
+                
+                // Llenamos hasta 6 filas vacías
+                const totalFilas = 6;
+                let html = '';
+                for(let i=0; i<totalFilas; i++) {
+                    if (i < recibo.detalles.length) {
+                        const est = recibo.detalles[i].estudiante;
+                        html += `<tr>
+                            <td style="border:1px solid #00A19D;padding:8px 10px;text-align:center;">${i+1}°</td>
+                            <td style="border:1px solid #00A19D;padding:8px 10px;font-weight:600;">${est.apellidos} ${est.nombres}</td>
+                            <td style="border:1px solid #00A19D;padding:8px 10px;text-align:center;">${est.ci || '-'}</td>
+                            <td style="border:1px solid #00A19D;padding:8px 10px;text-align:center;font-weight:600;color:#00A19D;">${est.curso || ''} "${est.paralelo || ''}"</td>
+                        </tr>`;
+                    } else {
+                        html += `<tr>
+                            <td style="border:1px solid #00A19D;padding:8px 10px;text-align:center;color:#ccc;">${i+1}°</td>
+                            <td style="border:1px solid #00A19D;padding:8px 10px;">&nbsp;</td>
+                            <td style="border:1px solid #00A19D;padding:8px 10px;">&nbsp;</td>
+                            <td style="border:1px solid #00A19D;padding:8px 10px;">&nbsp;</td>
+                        </tr>`;
+                    }
+                }
+                tbody.innerHTML = html;
 
                 document.title = `Recibo_${recibo.nro_recibo}`;
+                
                 setTimeout(() => {
                     window.print();
-                    // setTimeout(() => window.close(), 1000);
+                    // Cierra la pestaña 1 segundo después de que termine de imprimir o se cancele
+                    setTimeout(() => window.close(), 1000);
                 }, 500);
 
             } catch(e) {
