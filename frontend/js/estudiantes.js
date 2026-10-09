@@ -92,49 +92,94 @@ inputSearch.addEventListener('input', handleFilterChange);
 selectCurso.addEventListener('change', handleFilterChange);
 selectParalelo.addEventListener('change', handleFilterChange);
 
-btnExportar.addEventListener('click', () => {
-    if (!window.currentInscritosData || window.currentInscritosData.length === 0) {
-        alert("No hay datos para exportar.");
-        return;
+btnExportar.addEventListener('click', async () => {
+    const originalText = btnExportar.innerHTML;
+    btnExportar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exportando...';
+    btnExportar.disabled = true;
+
+    const curso = document.getElementById('selectCurso').value;
+    const paralelo = document.getElementById('selectParalelo').value;
+    const search = document.getElementById('inputSearch').value;
+
+    let url = new URL(`${API_URL}/estudiantes`, window.location.origin);
+    url.searchParams.append('limit', '5000');
+    if (search) url.searchParams.append('search', search);
+    if (curso) url.searchParams.append('curso', curso);
+    if (paralelo) url.searchParams.append('paralelo', paralelo);
+
+    try {
+        const response = await fetchWithAuth(url);
+        const dataToExport = await response.json();
+
+        if (!dataToExport || dataToExport.length === 0) {
+            alert("No hay datos para exportar con estos filtros.");
+            btnExportar.innerHTML = originalText;
+            btnExportar.disabled = false;
+            return;
+        }
+
+        let xls_html = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <meta charset="utf-8">
+        <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Inscritos</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
+        <body>
+        <table border="1">
+            <colgroup>
+                <col width="40" />
+                <col width="200" />
+                <col width="200" />
+                <col width="100" />
+                <col width="120" />
+                <col width="80" />
+                <col width="150" />
+            </colgroup>
+            <tr>
+                <th style="background-color:#FFD700; color:black;">N°</th>
+                <th style="background-color:#FFD700; color:black;">Apellidos</th>
+                <th style="background-color:#FFD700; color:black;">Nombres</th>
+                <th style="background-color:#FFD700; color:black;">C.I.</th>
+                <th style="background-color:#FFD700; color:black;">Curso</th>
+                <th style="background-color:#FFD700; color:black;">Paralelo</th>
+                <th style="background-color:#FFD700; color:black;">Situación (Matrícula)</th>
+            </tr>`;
+
+        dataToExport.forEach((est, index) => {
+            xls_html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${est.apellidos}</td>
+                <td>${est.nombres}</td>
+                <td>${est.ci || '-'}</td>
+                <td>${est.curso || '-'}</td>
+                <td>${est.paralelo || '-'}</td>
+                <td>${est.estado_matricula}</td>
+            </tr>`;
+        });
+
+        xls_html += `</table></body></html>`;
+
+        const blob = new Blob([xls_html], { type: 'application/vnd.ms-excel' });
+        const link = document.createElement("a");
+        const blobUrl = URL.createObjectURL(blob);
+        link.setAttribute("href", blobUrl);
+        
+        const c_name = curso || 'Todos_Cursos';
+        const p_name = paralelo || 'Todos_Paralelos';
+        let filename = `Lista_Inscritos_${c_name}_${p_name}.xls`.replace(/ /g, '_');
+        
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        btnExportar.innerHTML = originalText;
+        btnExportar.disabled = false;
+    } catch (error) {
+        console.error('Error exportando:', error);
+        alert("Error al generar Excel");
+        btnExportar.innerHTML = originalText;
+        btnExportar.disabled = false;
     }
-
-    // Crear arreglo de datos para SheetJS
-    const data = [];
-    
-    // 1. Cabeceras
-    data.push(['N°', 'Nombres', 'Apellidos', 'C.I.', 'Curso', 'Paralelo', 'Situación (Matrícula)']);
-    
-    // 2. Filas de estudiantes
-    window.currentInscritosData.forEach((est, index) => {
-        data.push([
-            index + 1,
-            est.nombres,
-            est.apellidos,
-            est.ci || '-',
-            est.curso || '-',
-            est.paralelo || '-',
-            est.estado_matricula
-        ]);
-    });
-    
-    // 3. Crear Libro y Hoja
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet(data);
-    
-    // Ajustar el ancho de las columnas
-    ws['!cols'] = [
-        {wch: 5}, {wch: 20}, {wch: 20}, {wch: 15}, {wch: 20}, {wch: 10}, {wch: 25}
-    ];
-
-    XLSX.utils.book_append_sheet(wb, ws, "Inscritos");
-    
-    // 4. Nombre del archivo y descarga
-    const curso = document.getElementById('selectCurso').value || 'Todos_Cursos';
-    const paralelo = document.getElementById('selectParalelo').value || 'Todos_Paralelos';
-    let filename = `Lista_Inscritos_${curso}_${paralelo}.xlsx`.replace(/ /g, '_');
-    
-    // Descargar el archivo XLSX (Excel real, compatible con celulares)
-    XLSX.writeFile(wb, filename);
 });
 
 // --- DAR DE BAJA ---
