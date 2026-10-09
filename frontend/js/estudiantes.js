@@ -98,50 +98,43 @@ btnExportar.addEventListener('click', () => {
         return;
     }
 
-    let xls_html = `
-    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-    <meta charset="utf-8">
-    <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Inscritos</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
-    <body>
-    <table border="1">
-        <tr>
-            <th style="background-color:#FFD700; color:black;">N°</th>
-            <th style="background-color:#FFD700; color:black;">Nombres</th>
-            <th style="background-color:#FFD700; color:black;">Apellidos</th>
-            <th style="background-color:#FFD700; color:black;">C.I.</th>
-            <th style="background-color:#FFD700; color:black;">Curso</th>
-            <th style="background-color:#FFD700; color:black;">Paralelo</th>
-            <th style="background-color:#FFD700; color:black;">Situación (Matrícula)</th>
-        </tr>`;
-
-    window.currentInscritosData.forEach((est, index) => {
-        xls_html += `
-        <tr>
-            <td>${index + 1}</td>
-            <td>${est.nombres}</td>
-            <td>${est.apellidos}</td>
-            <td>${est.ci || '-'}</td>
-            <td>${est.curso || '-'}</td>
-            <td>${est.paralelo || '-'}</td>
-            <td>${est.estado_matricula}</td>
-        </tr>`;
-    });
-
-    xls_html += `</table></body></html>`;
-
-    const blob = new Blob([xls_html], { type: 'application/vnd.ms-excel' });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
+    // Crear arreglo de datos para SheetJS
+    const data = [];
     
+    // 1. Cabeceras
+    data.push(['N°', 'Nombres', 'Apellidos', 'C.I.', 'Curso', 'Paralelo', 'Situación (Matrícula)']);
+    
+    // 2. Filas de estudiantes
+    window.currentInscritosData.forEach((est, index) => {
+        data.push([
+            index + 1,
+            est.nombres,
+            est.apellidos,
+            est.ci || '-',
+            est.curso || '-',
+            est.paralelo || '-',
+            est.estado_matricula
+        ]);
+    });
+    
+    // 3. Crear Libro y Hoja
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    
+    // Ajustar el ancho de las columnas
+    ws['!cols'] = [
+        {wch: 5}, {wch: 20}, {wch: 20}, {wch: 15}, {wch: 20}, {wch: 10}, {wch: 25}
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, "Inscritos");
+    
+    // 4. Nombre del archivo y descarga
     const curso = document.getElementById('selectCurso').value || 'Todos_Cursos';
     const paralelo = document.getElementById('selectParalelo').value || 'Todos_Paralelos';
-    let filename = `Lista_Inscritos_${curso}_${paralelo}.xls`.replace(/ /g, '_');
+    let filename = `Lista_Inscritos_${curso}_${paralelo}.xlsx`.replace(/ /g, '_');
     
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Descargar el archivo XLSX (Excel real, compatible con celulares)
+    XLSX.writeFile(wb, filename);
 });
 
 // --- DAR DE BAJA ---

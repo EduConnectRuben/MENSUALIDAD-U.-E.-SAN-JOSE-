@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas - UE San José</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/auth.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-container">
+            <img src="images/logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/50?text=SJ'">
+            <h1>UE San José</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="admin-hide"><i class="fas fa-money-bill-wave"></i> Cobros</a>
+            <a href="estado_pagos.html"><i class="fas fa-list-check"></i> Estado de Pagos</a>
+            <a href="padres_registrados.html"><i class="fas fa-user-friends"></i> Padres</a>
+            <a href="caja_informe.html" class="admin-hide"><i class="fas fa-wallet"></i> Caja y Reportes</a>
+            <a href="estadisticas.html" class="admin-hide active"><i class="fas fa-chart-pie"></i> Estadísticas</a>
+            <a href="importar_excel.html" class="admin-hide"><i class="fas fa-file-excel"></i> Importar</a>
+            <a href="estudiantes.html"><i class="fas fa-users"></i> Inscritos</a>
+            <a href="cambiar_password.html"><i class="fas fa-key"></i> Mi Cuenta</a>
+            <a href="#" id="btnLogout" onclick="logout(); return false;" style="color:#ff6b6b;"><i class="fas fa-sign-out-alt"></i> Salir</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="glass-panel" style="max-width: 1000px; margin: 0 auto;">
+            <h2 style="color: var(--gold-color); text-align: center;"><i class="fas fa-chart-pie"></i> Dashboard de Estadísticas</h2>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; margin-top: 2rem;">
+                
+                <div style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px;">
+                    <h3 style="text-align: center; color: #fff;">Estado Global de Aportes</h3>
+                    <canvas id="chartGeneral"></canvas>
+                </div>
+
+                <div style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px;">
+                    <h3 style="text-align: center; color: #fff;">Resumen de Caja</h3>
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <p style="font-size: 1.2rem; color: #00A8CC;">Total Ingresos: <br><strong id="lblIngresos" style="font-size: 2rem;">0 Bs</strong></p>
+                        <p style="font-size: 1.2rem; color: #ff4444;">Total Egresos: <br><strong id="lblEgresos" style="font-size: 2rem;">0 Bs</strong></p>
+                        <hr style="border-color: #444;">
+                        <p style="font-size: 1.4rem; color: #FFD700;">Saldo Real: <br><strong id="lblSaldo" style="font-size: 2.5rem;">0 Bs</strong></p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="margin-top: 3rem; background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px;">
+                <h3 style="text-align: center; color: #fff;">Cumplimiento por Cursos</h3>
+                <canvas id="chartCursos" height="100"></canvas>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            applyAdminHiding();
+            try {
+                const res = await fetchWithAuth('/api/estadisticas');
+                const data = await res.json();
+                
+                // Llenar datos de caja
+                document.getElementById('lblIngresos').innerText = data.caja.ingresos.toFixed(2) + ' Bs';
+                document.getElementById('lblEgresos').innerText = data.caja.egresos.toFixed(2) + ' Bs';
+                document.getElementById('lblSaldo').innerText = data.caja.saldo.toFixed(2) + ' Bs';
+                
+                // Gráfico General (Torta)
+                new Chart(document.getElementById('chartGeneral'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Pagados', 'Pendientes'],
+                        datasets: [{
+                            data: [data.estudiantes.pagados, data.estudiantes.pendientes],
+                            backgroundColor: ['#00A8CC', '#ff4444'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { labels: { color: 'white' } } }
+                    }
+                });
+
+                // Gráfico de Cursos (Barras Apiladas)
+                const cursos = Object.keys(data.cursos);
+                const pagados = cursos.map(c => data.cursos[c].pagados);
+                const pendientes = cursos.map(c => data.cursos[c].pendientes);
+
+                new Chart(document.getElementById('chartCursos'), {
+                    type: 'bar',
+                    data: {
+                        labels: cursos,
+                        datasets: [
+                            { label: 'Pagados', data: pagados, backgroundColor: '#00A8CC' },
+                            { label: 'Pendientes', data: pendientes, backgroundColor: '#ff4444' }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: { stacked: true, ticks: { color: 'white' } },
+                            y: { stacked: true, ticks: { color: 'white' } }
+                        },
+                        plugins: { legend: { labels: { color: 'white' } } }
+                    }
+                });
+
+            } catch(e) {
+                console.error("Error cargando estadísticas", e);
+            }
+        });
+    </script>
+</body>
+</html>

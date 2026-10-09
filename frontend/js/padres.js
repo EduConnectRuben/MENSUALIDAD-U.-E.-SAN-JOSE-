@@ -60,6 +60,19 @@ function renderPadres(data) {
                 <td>${padre.nombre_completo}</td>
                 <td><span style="color: #00A8CC; font-weight: bold;">${hijosTexto}</span></td>
                 <td><span class="badge badge-info" style="background: rgba(255,255,255,0.1); border: 1px solid #aaa; color: #ddd; padding: 4px 8px; border-radius: 10px;">${cursosTexto}</span></td>
+                <td>
+                    <button class="btn btn-primary btn-sm" onclick="verRecibos(${padre.id}, '${padre.nombre_completo}')" style="padding: 5px 10px; font-size: 0.8rem;">
+                        <i class="fas fa-eye"></i> Ver Pagos
+                    </button>
+                </td>
+            </tr>
+            <tr id="recibos-padre-${padre.id}" style="display: none; background: #1a1a1a;">
+                <td colspan="6" style="padding: 1rem;">
+                    <div style="background: #2a2a2a; border-radius: 8px; padding: 1rem;">
+                        <h4 style="margin-top:0; color:#00A8CC;">Historial de Pagos - ${padre.nombre_completo}</h4>
+                        <div id="recibos-list-${padre.id}">Cargando...</div>
+                    </div>
+                </td>
             </tr>
         `;
     });
@@ -136,4 +149,91 @@ window.exportarExcelPadres = function() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+};
+
+window.verRecibos = async function(padreId, nombre) {
+    const row = document.getElementById(`recibos-padre-${padreId}`);
+    const listDiv = document.getElementById(`recibos-list-${padreId}`);
+    
+    // Toggle
+    if (row.style.display === 'table-row') {
+        row.style.display = 'none';
+        return;
+    }
+    
+    row.style.display = 'table-row';
+    listDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando recibos...';
+    
+    try {
+        const res = await fetchWithAuth(`${API_URL}/padres/${padreId}/recibos`);
+        const recibos = await res.json();
+        
+        if (recibos.length === 0) {
+            listDiv.innerHTML = '<p style="color:#aaa;">Este padre aún no tiene pagos registrados.</p>';
+            return;
+        }
+        
+        let html = `<table class="table" style="margin-bottom:0;">
+            <thead><tr><th>N° Recibo</th><th>Fecha</th><th>Monto</th><th>Acción</th></tr></thead><tbody>`;
+            
+        recibos.forEach(r => {
+            html += `<tr>
+                <td style="color:#FFD700;">${r.nro_recibo}</td>
+                <td>${new Date(r.fecha).toLocaleString()}</td>
+                <td style="color:#00A8CC; font-weight:bold;">${r.monto} Bs</td>
+                <td>
+                    <button class="btn btn-success btn-sm" onclick="window.open('reimprimir.html?id=${r.id}', '_blank')" style="padding: 4px 8px;" title="Reimprimir">
+                        <i class="fas fa-print"></i>
+                    </button>
+                    <button class="btn btn-info btn-sm" onclick="enviarWhatsApp('${padreId}', '${r.id}', '${r.nro_recibo}', '${r.monto}')" style="padding: 4px 8px;" title="Enviar por WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </button>
+                    <button class="btn btn-danger btn-sm admin-hide" onclick="anularRecibo('${r.id}')" style="padding: 4px 8px;" title="Anular Recibo">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        listDiv.innerHTML = html;
+        
+    } catch(e) {
+        listDiv.innerHTML = '<span style="color:red;">Error al cargar recibos.</span>';
+    }
+};
+
+window.enviarWhatsApp = function(padreId, reciboId, nroRecibo, monto) {
+    const padre = allPadres.find(p => p.id == padreId);
+    let nombre = padre ? padre.nombre_completo : 'Padre/Tutor';
+    let mensaje = `Estimado(a) ${nombre},
+
+Le enviamos este mensaje desde la *Unidad Educativa San José* para confirmar su pago.
+
+*Nro de Recibo:* ${nroRecibo}
+*Monto:* ${monto} Bs
+*Concepto:* Aporte Anual
+
+Gracias por su puntualidad.`;
+    let url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
+};
+
+window.anularRecibo = async function(reciboId) {
+    if(!confirm('🚨 ¿ESTÁS SEGURO DE ANULAR ESTE RECIBO? 🚨\n\nEsta acción devolverá a los estudiantes a estado "Pendiente" y creará un egreso de anulación en caja. NO se puede deshacer.')) return;
+    
+    try {
+        const res = await fetchWithAuth(`${API_URL}/recibos/${reciboId}`, {
+            method: 'DELETE'
+        });
+        
+        if(res.ok) {
+            alert("✅ Recibo anulado correctamente.");
+            location.reload();
+        } else {
+            const err = await res.json();
+            alert("Error: " + (err.detail || 'No se pudo anular'));
+        }
+    } catch(e) {
+        alert("Error de red al anular recibo.");
+    }
 };

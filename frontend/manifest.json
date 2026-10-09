@@ -1,6 +1,6 @@
 {
   "name": "Sistema Aporte Anual - UE San José",
-  "short_name": "Aportes 27",
+  "short_name": "Aportes San José",
   "description": "Sistema de gestión de pagos de aporte anual para la Unidad Educativa San José. Registra cobros, genera recibos y consulta el estado de pagos de todos los estudiantes.",
   "start_url": "/login.html",
   "scope": "/",

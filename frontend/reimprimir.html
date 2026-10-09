@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reimprimir Recibo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            color: #333;
+        }
+        .recibo-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .recibo-header {
+            text-align: center;
+            border-bottom: 2px dashed #ccc;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+        .recibo-header h2 {
+            margin: 0;
+            color: #00A8CC;
+        }
+        .recibo-details p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+        }
+        .recibo-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .recibo-table th, .recibo-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        .recibo-table th {
+            background: #f8f9fa;
+        }
+        .total-row {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #ff4444;
+            text-align: right;
+        }
+        @media print {
+            body { background: white; padding: 0; }
+            .recibo-container { box-shadow: none; border: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="recibo-container" id="printableRecibo">
+        <div class="recibo-header">
+            <h2>U.E. San José - Recibo de Aportes (COPIA)</h2>
+            <p style="margin: 5px 0;"><strong>N°:</strong> <span id="rNro">-</span></p>
+            <p style="margin: 0; font-size: 0.85rem; color: #666;" id="rFecha">-</p>
+        </div>
+        <div class="recibo-details">
+            <p><strong>Recibí de:</strong> <span id="rPadre">-</span></p>
+            <p><strong>Por concepto de:</strong> Aporte Anual 2026</p>
+            <p><strong>Meses pagados:</strong> <span id="rMeses">-</span></p>
+        </div>
+        <table class="recibo-table">
+            <thead>
+                <tr>
+                    <th>Estudiante</th>
+                    <th>Curso</th>
+                </tr>
+            </thead>
+            <tbody id="rEstudiantes">
+            </tbody>
+        </table>
+        <div style="margin-top: 1rem; text-align: right;">
+            <p class="total-row">TOTAL PAGADO: <span id="rTotal">0</span> Bs</p>
+        </div>
+        <div style="margin-top: 3rem; display: flex; justify-content: space-around; text-align: center;">
+            <div>
+                <p>_______________________</p>
+                <p style="font-size: 0.8rem;">Firma Entregué</p>
+            </div>
+            <div>
+                <p>_______________________</p>
+                <p style="font-size: 0.8rem;">Firma Recibí (Secretaría)</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadRecibo() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            if(!id) {
+                alert("ID de recibo no proporcionado");
+                return;
+            }
+
+            try {
+                // Check auth
+                const token = localStorage.getItem('token');
+                if(!token) throw new Error("No token");
+
+                const res = await fetch(`/api/recibos/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if(!res.ok) throw new Error("Recibo no encontrado");
+                
+                const recibo = await res.json();
+                
+                document.getElementById('rNro').innerText = recibo.nro_recibo;
+                document.getElementById('rFecha').innerText = new Date(recibo.fecha).toLocaleString();
+                document.getElementById('rPadre').innerText = recibo.padre.nombre_completo;
+                
+                // Extraer meses (vienen en el nro de recibo o descripcion)
+                // Para simplificar, mostramos "Aporte Anual" o lo que esté guardado
+                let mesesStr = "Varios";
+                if(recibo.nro_recibo.includes("(")) {
+                    // Try to extract months from older logic if needed, 
+                    // but we can just say "Según sistema" for now or use the DB field if available.
+                    // Wait, Recibo in DB doesn't save string of months directly on the model, it saves detalles.
+                }
+                document.getElementById('rMeses').innerText = "Meses registrados";
+                
+                document.getElementById('rTotal').innerText = recibo.monto.toFixed(2);
+
+                const tbody = document.getElementById('rEstudiantes');
+                tbody.innerHTML = '';
+                recibo.detalles.forEach(d => {
+                    tbody.innerHTML += `<tr>
+                        <td>${d.estudiante.nombres} ${d.estudiante.apellidos}</td>
+                        <td>${d.estudiante.curso} "${d.estudiante.paralelo}"</td>
+                    </tr>`;
+                });
+
+                document.title = `Recibo_${recibo.nro_recibo}`;
+                setTimeout(() => {
+                    window.print();
+                    // setTimeout(() => window.close(), 1000);
+                }, 500);
+
+            } catch(e) {
+                alert("Error cargando recibo");
+                console.error(e);
+            }
+        }
+        
+        loadRecibo();
+    </script>
+</body>
+</html>

@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from sqlalchemy import or_, func
 from typing import List, Optional
 import uvicorn
@@ -484,6 +485,12 @@ def create_padre(padre: schemas.PadreCreate, db: Session = Depends(get_db)):
     db.refresh(db_padre)
     return db_padre
 
+
+@app.get("/api/padres/{padre_id}/recibos", response_model=List[schemas.Recibo])
+def get_recibos_by_padre(padre_id: int, db: Session = Depends(get_db)):
+    recibos = db.query(models.Recibo).filter(models.Recibo.padre_id == padre_id).order_by(models.Recibo.fecha.desc()).all()
+    return recibos
+
 @app.post("/api/recibos", response_model=schemas.Recibo)
 def create_recibo(
     recibo_data: schemas.ReciboCreate, 
@@ -531,6 +538,79 @@ def create_recibo(
     db.commit()
     db.refresh(db_recibo)
     return db_recibo
+
+
+@app.get("/api/padres/{padre_id}/recibos", response_model=List[schemas.Recibo])
+def get_recibos_by_padre(padre_id: int, db: Session = Depends(get_db)):
+    recibos = db.query(models.Recibo).filter(models.Recibo.padre_id == padre_id).order_by(models.Recibo.fecha.desc()).all()
+    return recibos
+
+@app.get("/api/recibos/{recibo_id}", response_model=schemas.Recibo)
+def get_recibo_by_id(recibo_id: int, db: Session = Depends(get_db)):
+    recibo = db.query(models.Recibo).filter(models.Recibo.id == recibo_id).first()
+    if not recibo:
+        raise HTTPException(status_code=404, detail="Recibo no encontrado")
+    return recibo
+
+
+@app.delete("/api/recibos/{recibo_id}")
+def anular_recibo(recibo_id: int, current_user: schemas.Usuario = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    if current_user.rol != 'admin':
+        raise HTTPException(status_code=403, detail="Solo el administrador puede anular recibos")
+        
+    recibo = db.query(models.Recibo).filter(models.Recibo.id == recibo_id).first()
+    if not recibo:
+        raise HTTPException(status_code=404, detail="Recibo no encontrado")
+        
+    # 1. Revertir estado de los estudiantes a "Pendiente"
+    for detalle in recibo.detalles:
+        est = db.query(models.Estudiante).filter(models.Estudiante.id == detalle.estudiante_id).first()
+        if est:
+            est.estado_pago = "Pendiente"
+            
+    # 2. Revertir el cobro en Caja (Crear un egreso de anulación)
+    nueva_transaccion = models.CajaTransaccion(
+        tipo="egreso",
+        monto=recibo.monto,
+        descripcion=f"ANULACIÓN de {recibo.nro_recibo}",
+        usuario_id=current_user.id
+    )
+    db.add(nueva_transaccion)
+    
+    # 3. Eliminar los detalles y el recibo
+    db.query(models.DetalleRecibo).filter(models.DetalleRecibo.recibo_id == recibo_id).delete()
+    db.delete(recibo)
+    
+    db.commit()
+    return {"message": "Recibo anulado con éxito"}
+
+@app.get("/api/estadisticas")
+def get_estadisticas(db: Session = Depends(get_db)):
+    total_estudiantes = db.query(models.Estudiante).count()
+    pagados = db.query(models.Estudiante).filter(models.Estudiante.estado_pago == "Pagado").count()
+    pendientes = total_estudiantes - pagados
+    
+    # Ingresos y Egresos Totales
+    ingresos = db.query(func.sum(models.CajaTransaccion.monto)).filter(models.CajaTransaccion.tipo == 'ingreso').scalar() or 0.0
+    egresos = db.query(func.sum(models.CajaTransaccion.monto)).filter(models.CajaTransaccion.tipo == 'egreso').scalar() or 0.0
+    
+    # Cursos stats
+    cursos_raw = db.query(models.Estudiante.curso, models.Estudiante.estado_pago).all()
+    cursos_stats = {}
+    for curso, estado in cursos_raw:
+        c = curso if curso else "Sin Curso"
+        if c not in cursos_stats:
+            cursos_stats[c] = {"pagados": 0, "pendientes": 0}
+        if estado == "Pagado":
+            cursos_stats[c]["pagados"] += 1
+        else:
+            cursos_stats[c]["pendientes"] += 1
+            
+    return {
+        "estudiantes": {"pagados": pagados, "pendientes": pendientes},
+        "caja": {"ingresos": ingresos, "egresos": egresos, "saldo": ingresos - egresos},
+        "cursos": cursos_stats
+    }
 
 @app.post("/api/sync/recibos")
 def sync_recibos(
