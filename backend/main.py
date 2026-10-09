@@ -554,7 +554,7 @@ def get_recibo_by_id(recibo_id: int, db: Session = Depends(get_db)):
 
 
 @app.delete("/api/recibos/{recibo_id}")
-def anular_recibo(recibo_id: int, current_user: schemas.Usuario = Depends(get_current_active_user), db: Session = Depends(get_db)):
+def anular_recibo(recibo_id: int, current_user: schemas.Usuario = Depends(get_current_active_admin), db: Session = Depends(get_db)):
     if current_user.rol != 'admin':
         raise HTTPException(status_code=403, detail="Solo el administrador puede anular recibos")
         
