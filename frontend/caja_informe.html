@@ -7,50 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <script src="js/auth.js">
-        window.generarBackupMaster = async function() {
-            if(!confirm("Generar el Backup Maestro descargará toda la base de datos (Estudiantes, Padres y Caja). ¿Continuar?")) return;
-            
-            try {
-                // Fetch data
-                const resCaja = await fetchWithAuth('/api/caja/informe');
-                const resEst = await fetchWithAuth('/api/estudiantes?limit=5000');
-                const resPadres = await fetchWithAuth('/api/padres');
-                
-                const dCaja = await resCaja.json();
-                const dEst = await resEst.json();
-                const dPadres = await resPadres.json();
-                
-                const wb = XLSX.utils.book_new();
-                
-                // Sheet 1: Estudiantes
-                const wsEst = XLSX.utils.aoa_to_sheet([
-                    ['ID', 'Nombres', 'Apellidos', 'CI', 'Curso', 'Paralelo', 'Estado Pago', 'Estado Matrícula']
-                ].concat(dEst.map(e => [e.id, e.nombres, e.apellidos, e.ci, e.curso, e.paralelo, e.estado_pago, e.estado_matricula])));
-                XLSX.utils.book_append_sheet(wb, wsEst, "Estudiantes");
-                
-                // Sheet 2: Padres
-                const wsPadres = XLSX.utils.aoa_to_sheet([
-                    ['ID', 'Carnet', 'Nombre']
-                ].concat(dPadres.map(p => [p.id, p.carnet, p.nombre_completo])));
-                XLSX.utils.book_append_sheet(wb, wsPadres, "Padres");
-                
-                // Sheet 3: Caja
-                const wsCaja = XLSX.utils.aoa_to_sheet([
-                    ['Fecha', 'Tipo', 'Descripción', 'Monto Bs']
-                ].concat(dCaja.transacciones.map(t => [new Date(t.fecha).toLocaleString(), t.tipo.toUpperCase(), t.descripcion, t.monto])));
-                XLSX.utils.book_append_sheet(wb, wsCaja, "Transacciones Caja");
-                
-                // Save
-                const fecha = new Date().toISOString().split('T')[0];
-                XLSX.writeFile(wb, `Backup_Maestro_SanJose_${fecha}.xlsx`);
-                
-            } catch(e) {
-                alert("Error generando backup: " + e.message);
-            }
-        };
-
-    </script>
+    <script src="js/auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .metric-card {
             padding: 1.5rem;
