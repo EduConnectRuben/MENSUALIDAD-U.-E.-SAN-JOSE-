@@ -62,7 +62,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
-            applyAdminHiding();
             try {
                 const res = await fetchWithAuth('/api/estadisticas');
                 const data = await res.json();
