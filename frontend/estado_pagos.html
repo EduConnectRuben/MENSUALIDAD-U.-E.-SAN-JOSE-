@@ -236,58 +236,47 @@
                 return;
             }
 
-            let xls_html = `
-            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-            <meta charset="utf-8">
-            <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Reporte Pagos</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
-            <body>
-            <table border="1">
-                <tr>
-                    <th style="background-color:#FFD700; color:black;">N°</th>
-                    <th style="background-color:#FFD700; color:black;">Estudiante</th>
-                    <th style="background-color:#FFD700; color:black;">Curso</th>
-                    <th style="background-color:#FFD700; color:black;">Paralelo</th>
-                    <th style="background-color:#FFD700; color:black;">C.I.</th>
-                    <th style="background-color:#FFD700; color:black;">Estado de Pago</th>
-                    <th style="background-color:#FFD700; color:black;">Situación (Matrícula)</th>
-                </tr>`;
+            const data = [];
+            data.push(["N°", "Estudiante", "Curso", "Paralelo", "C.I.", "Estado de Pago", "Situación (Matrícula)"]);
 
             window.currentEstudiantesData.forEach((est, index) => {
                 let situacion = est.estado_matricula;
                 let estado_pago = est.estado_pago || 'Pendiente';
                 
-                xls_html += `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${est.nombres} ${est.apellidos}</td>
-                    <td>${est.curso}</td>
-                    <td>${est.paralelo}</td>
-                    <td>${est.ci || '-'}</td>
-                    <td>${estado_pago}</td>
-                    <td>${situacion}</td>
-                </tr>`;
+                data.push([
+                    index + 1,
+                    `${est.nombres} ${est.apellidos}`,
+                    est.curso,
+                    est.paralelo,
+                    est.ci || '-',
+                    estado_pago,
+                    situacion
+                ]);
             });
 
-            xls_html += `</table></body></html>`;
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(data);
 
-            const blob = new Blob([xls_html], { type: 'application/vnd.ms-excel' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
+            // Ajustar ancho de columnas para que entren todos los meses
+            ws['!cols'] = [
+                {wch: 5},   // N°
+                {wch: 35},  // Estudiante
+                {wch: 15},  // Curso
+                {wch: 10},  // Paralelo
+                {wch: 15},  // C.I.
+                {wch: 60},  // Estado de Pago (Súper ancho para que entren todos los meses)
+                {wch: 20}   // Situación
+            ];
+
+            XLSX.utils.book_append_sheet(wb, ws, "Reporte Pagos");
             
             const curso = document.getElementById('selectCurso').value || 'Todos';
             const paralelo = document.getElementById('selectParalelo').value || 'Todos';
             const estado = document.getElementById('selectEstado').value || 'Todos';
             
-            let filename = `Reporte_${curso}_${paralelo}_${estado}.xls`;
-            filename = filename.replace(/ /g, '_');
-            
-            link.setAttribute("download", filename);
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            XLSX.writeFile(wb, `Reporte_${curso}_${paralelo}_${estado}.xlsx`);
         };
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>
