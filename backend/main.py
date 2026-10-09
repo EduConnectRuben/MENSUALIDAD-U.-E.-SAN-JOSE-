@@ -195,7 +195,7 @@ def reset_password(
 @app.get("/api/estudiantes", response_model=List[schemas.Estudiante])
 def get_estudiantes(
     skip: int = 0, 
-    limit: int = 100, 
+    limit: int = 5000, 
     curso: str = None, 
     paralelo: str = None, 
     search: str = None,
