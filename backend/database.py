@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 # Si existe DATABASE_URL (Render), la usamos. Si no, usamos SQLite local para que funcione sin configurar Postgres localmente.
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_kLl7WyeUVn0E@ep-raspy-lake-b49zc0fm-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require")
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 

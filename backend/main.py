@@ -328,41 +328,54 @@ def create_estudiante(estudiante: schemas.EstudianteCreate, db: Session = Depend
 
 @app.get("/api/estudiantes/plantilla")
 def descargar_plantilla():
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Estudiantes"
+    import os
+    from fastapi.responses import FileResponse
+    # Ruta absoluta al archivo físico en la carpeta estudiantes
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    file_path = os.path.join(base_dir, "estudiantes", "Plantilla_Inscritos.xlsx")
     
-    headers = ["Nombres", "Apellidos", "CI"]
-    ws.append(headers)
-    
-    fill = PatternFill(start_color="FFD700", end_color="FFD700", fill_type="solid")
-    font = Font(bold=True)
-    thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
-    
-    for col_num, header in enumerate(headers, 1):
-        cell = ws.cell(row=1, column=col_num)
-        cell.fill = fill
-        cell.font = font
-        cell.border = thin_border
+    if os.path.exists(file_path):
+        return FileResponse(
+            path=file_path,
+            filename="Plantilla_Inscritos.xlsx",
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+    else:
+        # Fallback si no existe
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Estudiantes"
+        headers = ["Nombres", "Apellidos", "CI"]
+        ws.append(headers)
         
-    ws.column_dimensions['A'].width = 35
-    ws.column_dimensions['B'].width = 35
-    ws.column_dimensions['C'].width = 15
-    
-    for row in range(2, 52):
-        for col in range(1, 4):
-            cell = ws.cell(row=row, column=col)
+        fill = PatternFill(start_color="FFD700", end_color="FFD700", fill_type="solid")
+        font = Font(bold=True)
+        thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+        
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col_num)
+            cell.fill = fill
+            cell.font = font
             cell.border = thin_border
             
-    stream = io.BytesIO()
-    wb.save(stream)
-    stream.seek(0)
-    
-    return StreamingResponse(
-        stream, 
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
-        headers={"Content-Disposition": "attachment; filename=Plantilla_Inscritos.xlsx"}
-    )
+        ws.column_dimensions['A'].width = 35
+        ws.column_dimensions['B'].width = 35
+        ws.column_dimensions['C'].width = 15
+        
+        for row in range(2, 52):
+            for col in range(1, 4):
+                cell = ws.cell(row=row, column=col)
+                cell.border = thin_border
+                
+        stream = io.BytesIO()
+        wb.save(stream)
+        stream.seek(0)
+        
+        return StreamingResponse(
+            stream, 
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+            headers={"Content-Disposition": "attachment; filename=Plantilla_Inscritos.xlsx"}
+        )
 
 @app.post("/api/estudiantes/upload")
 
