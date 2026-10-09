@@ -274,37 +274,81 @@
             }
 
             const d = window.currentCajaData;
-            const data = [];
-
-            data.push(["Informe de Caja - U.E. San José"]);
-            data.push([]);
-            data.push(["TOTAL INGRESOS", "TOTAL EGRESOS", "SALDO ACTUAL"]);
-            data.push([
-                `${d.total_ingresos.toFixed(2)} Bs`,
-                `${d.total_egresos.toFixed(2)} Bs`,
-                `${d.saldo_actual.toFixed(2)} Bs`
-            ]);
-            data.push([]);
-            data.push([]);
-            data.push(["Detalle de Movimientos"]);
-            data.push(["Fecha y Hora", "Tipo de Movimiento", "Descripción / Concepto", "Monto"]);
+            
+            let xls_html = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <meta charset="utf-8">
+            <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Informe de Caja</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
+            <body>
+            <table border="1">
+                <colgroup>
+                    <col width="150" />
+                    <col width="150" />
+                    <col width="500" /> <!-- Descripcion extra ancha -->
+                    <col width="120" />
+                </colgroup>
+                
+                <tr>
+                    <th colspan="4" style="background-color:#FFD700; color:black; font-size:16px;">Informe de Caja - U.E. San José</th>
+                </tr>
+                <tr>
+                    <td colspan="4"></td>
+                </tr>
+                <tr>
+                    <th style="background-color:#E0E0E0; font-weight:bold;">TOTAL INGRESOS</th>
+                    <th style="background-color:#E0E0E0; font-weight:bold;">TOTAL EGRESOS</th>
+                    <th colspan="2" style="background-color:#E0E0E0; font-weight:bold;">SALDO ACTUAL</th>
+                </tr>
+                <tr>
+                    <td style="color:green; font-weight:bold;">${d.total_ingresos.toFixed(2)} Bs</td>
+                    <td style="color:red; font-weight:bold;">${d.total_egresos.toFixed(2)} Bs</td>
+                    <td colspan="2" style="color:black; font-weight:bold; font-size:14px;">${d.saldo_actual.toFixed(2)} Bs</td>
+                </tr>
+                <tr>
+                    <td colspan="4"></td>
+                </tr>
+                <tr>
+                    <td colspan="4"></td>
+                </tr>
+                
+                <tr>
+                    <th colspan="4" style="background-color:#FFD700; color:black; text-align:left;">Detalle de Movimientos</th>
+                </tr>
+                <tr>
+                    <th style="background-color:#00A8CC; color:white;">Fecha y Hora</th>
+                    <th style="background-color:#00A8CC; color:white;">Tipo de Movimiento</th>
+                    <th style="background-color:#00A8CC; color:white;">Descripción / Concepto</th>
+                    <th style="background-color:#00A8CC; color:white;">Monto</th>
+                </tr>
+            `;
 
             d.transacciones.forEach(t => {
                 const fecha = new Date(t.fecha).toLocaleString();
                 const tipo = t.tipo.toUpperCase();
                 const signo = t.tipo === 'ingreso' ? '+' : '-';
-                const monto = `${signo}${t.monto.toFixed(2)} Bs`;
+                const montoColor = t.tipo === 'ingreso' ? 'green' : 'red';
+                const monto = `<span style="color:${montoColor}; font-weight:bold;">${signo}${t.monto.toFixed(2)} Bs</span>`;
                 
-                data.push([fecha, tipo, t.descripcion, monto]);
+                xls_html += `
+                <tr>
+                    <td>${fecha}</td>
+                    <td>${tipo}</td>
+                    <td>${t.descripcion}</td>
+                    <td>${monto}</td>
+                </tr>`;
             });
 
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(data);
+            xls_html += `</table></body></html>`;
 
-            ws['!cols'] = [{wch: 20}, {wch: 20}, {wch: 50}, {wch: 15}];
-
-            XLSX.utils.book_append_sheet(wb, ws, "Informe de Caja");
-            XLSX.writeFile(wb, "Informe_de_Caja_San_Jose.xlsx");
+            const blob = new Blob([xls_html], { type: 'application/vnd.ms-excel' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            
+            link.setAttribute("download", `Informe_de_Caja_San_Jose.xls`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         };
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
