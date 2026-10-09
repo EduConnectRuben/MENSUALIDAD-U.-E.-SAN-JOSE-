@@ -77,7 +77,6 @@
             <a href="estado_pagos.html"><i class="fas fa-list-check"></i> Estado de Pagos</a>
             <a href="padres_registrados.html"><i class="fas fa-user-friends"></i> Padres</a>
             <a href="caja_informe.html" class="admin-hide active"><i class="fas fa-wallet"></i> Caja y Reportes</a>
-            <a href="estadisticas.html" class="admin-hide"><i class="fas fa-chart-pie"></i> Estadísticas</a>
             <a href="importar_excel.html" class="admin-hide"><i class="fas fa-file-excel"></i> Importar</a>
             <a href="estudiantes.html"><i class="fas fa-users"></i> Inscritos</a>
             <a href="cambiar_password.html"><i class="fas fa-key"></i> Mi Cuenta</a>
@@ -152,6 +151,22 @@
                 </form>
             </div>
         </div>
+
+            <!-- ESTADISTICAS INTEGRADAS -->
+            <div style="margin-top: 3rem;">
+                <h2 style="color: var(--gold-color);"><i class="fas fa-chart-pie"></i> Gráficos Estadísticos</h2>
+                <div style="display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; margin-top: 1rem;">
+                    <div style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px;">
+                        <h3 style="text-align: center; color: #fff;">Estado Global de Aportes</h3>
+                        <canvas id="chartGeneral"></canvas>
+                    </div>
+                    <div style="flex: 2; min-width: 300px; background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px;">
+                        <h3 style="text-align: center; color: #fff;">Cumplimiento por Cursos</h3>
+                        <canvas id="chartCursos" height="150"></canvas>
+                    </div>
+                </div>
+            </div>
+
     </div>
 
     <script>
@@ -242,7 +257,61 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', cargarCaja);
+        
+        // --- LOGICA DE GRAFICOS ---
+        async function cargarGraficos() {
+            try {
+                const res = await fetchWithAuth('/api/estadisticas');
+                const data = await res.json();
+                
+                new Chart(document.getElementById('chartGeneral'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Pagados', 'Pendientes'],
+                        datasets: [{
+                            data: [data.estudiantes.pagados, data.estudiantes.pendientes],
+                            backgroundColor: ['#00A8CC', '#ff4444'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: { plugins: { legend: { labels: { color: 'white' } } } }
+                });
+
+                const cursos = Object.keys(data.cursos);
+                const pagados = cursos.map(c => data.cursos[c].pagados);
+                const pendientes = cursos.map(c => data.cursos[c].pendientes);
+
+                new Chart(document.getElementById('chartCursos'), {
+                    type: 'bar',
+                    data: {
+                        labels: cursos,
+                        datasets: [
+                            { label: 'Pagados', data: pagados, backgroundColor: '#00A8CC' },
+                            { label: 'Pendientes', data: pendientes, backgroundColor: '#ff4444' }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: { stacked: true, ticks: { color: 'white' } },
+                            y: { stacked: true, ticks: { color: 'white' } }
+                        },
+                        plugins: { legend: { labels: { color: 'white' } } }
+                    }
+                });
+            } catch(e) {
+                console.error("Error cargando graficos", e);
+            }
+        }
+        
+        // Llamar a cargar graficos despues de cargarCaja
+        const oldCargarCaja = cargarCaja;
+        cargarCaja = async function() {
+            await oldCargarCaja();
+            await cargarGraficos();
+        };
+
+document.addEventListener('DOMContentLoaded', cargarCaja);
 
         window.exportarExcelCaja = function() {
             if (!window.currentCajaData) {
