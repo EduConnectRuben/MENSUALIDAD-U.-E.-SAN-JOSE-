@@ -60,34 +60,51 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent Chrome 67 and earlier from automatically showing the prompt
-    e.preventDefault();
-    // Stash the event so it can be triggered later.
-    deferredPrompt = e;
-    // Update UI to notify the user they can add to home screen
-    const navLinks = document.querySelector('.nav-links');
-    if (navLinks && !document.getElementById('btnInstallApp')) {
-        const installBtn = document.createElement('a');
-        installBtn.href = '#';
-        installBtn.id = 'btnInstallApp';
-        installBtn.style.color = '#00A8CC';
-        installBtn.innerHTML = '<i class="fas fa-download"></i> Instalar';
-        installBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            // Show the install prompt
-            deferredPrompt.prompt();
-            // Wait for the user to respond to the prompt
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                installBtn.style.display = 'none';
-            }
-            deferredPrompt = null;
-        });
-        // Insert before logout if it exists
-        navLinks.insertBefore(installBtn, navLinks.firstChild);
+let deferredPrompt = null;
+
+// Agregar el botón de instalar SIEMPRE (a menos que ya esté instalado)
+document.addEventListener('DOMContentLoaded', () => {
+    // Verificar si ya está instalado (standalone mode)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    
+    if (!isStandalone) {
+        const navLinks = document.querySelector('.nav-links');
+        if (navLinks && !document.getElementById('btnInstallApp')) {
+            const installBtn = document.createElement('a');
+            installBtn.href = '#';
+            installBtn.id = 'btnInstallApp';
+            installBtn.style.color = '#00A8CC';
+            installBtn.innerHTML = '<i class="fas fa-download"></i> Instalar';
+            
+            installBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                if (deferredPrompt) {
+                    // Mostrar prompt nativo
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        installBtn.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                } else {
+                    // Si el navegador no dio el prompt automático, enseñarle cómo hacerlo
+                    alert("Para instalar en Celular: Toca los 3 puntitos del navegador (arriba a la derecha) y elige 'Añadir a la pantalla principal' o 'Instalar aplicación'.\n\nPara instalar en Computadora: Haz clic en el ícono de descarga que aparece arriba en la barra de direcciones.");
+                }
+            });
+            // Insertarlo al principio
+            navLinks.insertBefore(installBtn, navLinks.firstChild);
+        }
     }
+});
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+});
+
+window.addEventListener('appinstalled', () => {
+    const installBtn = document.getElementById('btnInstallApp');
+    if (installBtn) installBtn.style.display = 'none';
 });
 
 // =====================================================
